@@ -1,0 +1,20 @@
+{
+  "name": "rx-store-core",
+  "version": "1.0.0",
+  "description": "An Rxjs based Type-safe state management tool",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Honka3rd/RxStore.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Honka3rd/RxStore/issues"
+  },
+  "homepage": "https://github.com/Honka3rd/RxStore#readme"
+}
