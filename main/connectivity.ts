@@ -1,5 +1,5 @@
-import { distinctUntilChanged, map, Observable, Subscription } from "rxjs";
-import { BS, Connectivity } from "./interfaces";
+import { distinctUntilChanged, map } from "rxjs";
+import { BS, Comparator, Connectivity } from "./interfaces";
 import { ReactiveImpl } from "./reactive";
 
 export class ConnectivityImpl<S extends BS>
@@ -9,11 +9,11 @@ export class ConnectivityImpl<S extends BS>
   constructor(initiator: S) {
     super(initiator);
   }
-  
+
   subscribeTo<K extends keyof S>(
     key: K,
     observer: (result: ReturnType<S[K]>) => void,
-    comparator?: (prev: ReturnType<S[K]>, next: ReturnType<S[K]>) => boolean
+    comparator?: Comparator<ReturnType<S[K]>>
   ) {
     return this.source()
       .pipe(
@@ -26,10 +26,7 @@ export class ConnectivityImpl<S extends BS>
   subscribeMultiple<KS extends keyof S>(
     keys: KS[],
     observer: (result: { [K in KS]: ReturnType<S[K]> }) => void,
-    comparator?: (
-      prev: { [K in KS]: ReturnType<S[K]> },
-      next: { [K in KS]: ReturnType<S[K]> }
-    ) => boolean
+    comparator?: Comparator<{ [K in KS]: ReturnType<S[K]> }>
   ) {
     return this.source()
       .pipe(
@@ -46,10 +43,7 @@ export class ConnectivityImpl<S extends BS>
 
   subscribeAll(
     observer: (result: { [K in keyof S]: ReturnType<S[K]> }) => void,
-    comparator?: (
-      prev: { [K in keyof S]: ReturnType<S[K]> },
-      next: { [K in keyof S]: ReturnType<S[K]> }
-    ) => boolean
+    comparator?: Comparator<{ [K in keyof S]: ReturnType<S[K]> }>
   ) {
     return this.source()
       .pipe(

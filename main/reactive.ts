@@ -44,6 +44,20 @@ export class ReactiveImpl<S extends BS> implements Reactive<S> {
     return this.initiator[key]();
   }
 
+  getDefaults<KS extends keyof S>(keys: KS[]) {
+    return keys.reduce((acc, next) => {
+      acc[next] = this.getDefault(next);
+      return acc;
+    }, {} as { [k in KS]: ReturnType<S[k]> });
+  }
+
+  getDefaultAll = () => {
+    return this.getAllKeys().reduce((acc, next) => {
+      acc[next] = this.getDefault(next);
+      return acc;
+    }, {} as { [k in keyof S]: ReturnType<S[k]> });
+  };
+
   getMultiple<KS extends keyof S>(keys: KS[]) {
     const data = this.dataSource.value;
     return keys.reduce((acc, next) => {
@@ -58,7 +72,7 @@ export class ReactiveImpl<S extends BS> implements Reactive<S> {
     };
   }
 
-  getAllKeys () {
+  getAllKeys(): Array<keyof S> {
     return Object.getOwnPropertyNames(this.initiator);
   }
 }

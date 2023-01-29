@@ -1,115 +1,105 @@
-import { Observable } from "rxjs";
+import { Collection, is } from "immutable";
 import { ConnectivityImpl } from "./main/connectivity";
-import { BS, Connectivity, RxStore, Subscribable } from "./main/interfaces";
+import {
+  BS,
+  CloneFunction,
+  CloneFunctionMap,
+  Comparator,
+  ComparatorMap,
+  Connectivity,
+  NRSConfig,
+  RxNStore,
+  RxImStore,
+  Subscribable,
+  IBS,
+} from "./main/interfaces";
+import { RxStoreImpl } from "./main/rs";
 
-class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
+const shallowClone = <T>(input: T) => {
+  if (!input) {
+    return input;
+  }
+
+  if (typeof input !== "object") {
+    return input;
+  }
+
+  if (input instanceof Date) {
+    return new Date(input) as T;
+  }
+
+  if (input instanceof RegExp) {
+    return new RegExp(input) as T;
+  }
+
+  const ownKeys = Object.getOwnPropertyNames(input) as Array<keyof T>;
+  const copied = Object.create(
+    Object.getPrototypeOf(input),
+    Object.getOwnPropertyDescriptors(input)
+  );
+  ownKeys.forEach((k: keyof T) => {
+    copied[k] = input[k];
+  });
+  return copied as T;
+};
+
+class RxNStoreImpl<S extends BS>
+  extends RxStoreImpl<S>
+  implements Subscribable<S>, RxNStore<S>
+{
   constructor(
-    private connector: Connectivity<S>,
-    private cloneFunction?: <T>(input: T) => T
+    connector: Connectivity<S>,
+    private cloneFunction?: CloneFunction<ReturnType<S[keyof S]>>,
+    private cloneFunctionMap?: CloneFunctionMap<S>,
+    comparator?: Comparator<any>,
+    comparatorMap?: ComparatorMap<any>
   ) {
-    this.dispatch = this.dispatch.bind(this);
-    this.getState = this.getState.bind(this);
-    this.getStateAll = this.getStateAll.bind(this);
-    this.getStates = this.getStates.bind(this);
-    this.reset = this.reset.bind(this);
-    this.resetAll = this.resetAll.bind(this);
-    this.subscribeAll = this.subscribeAll.bind(this);
-    this.subscribeMultiple = this.subscribeMultiple.bind(this);
-    this.subscribeTo = this.subscribeTo.bind(this);
-    this.getDataSource = this.getDataSource.bind(this);
+    super(connector, comparator, comparatorMap);
+    this.getClonedState = this.getClonedState.bind(this);
   }
 
-  subscribeTo<K extends keyof S>(
-    key: K,
-    observer: (result: ReturnType<S[K]>) => void,
-    comparator?: (prev: ReturnType<S[K]>, next: ReturnType<S[K]>) => boolean
-  ) {
-    return this.connector.subscribeTo(key, observer, comparator);
-  }
+  getClonedState<K extends keyof S>(key: K) {
+    const { cloneFunction, cloneFunctionMap } = this;
+    const cloneFn = cloneFunctionMap?.[key];
 
-  subscribeMultiple<KS extends keyof S>(
-    keys: KS[],
-    observer: (result: { [K in KS]: ReturnType<S[K]> }) => void,
-    comparator?: (
-      prev: { [K in KS]: ReturnType<S[K]> },
-      next: { [K in KS]: ReturnType<S[K]> }
-    ) => boolean
-  ) {
-    return this.connector.subscribeMultiple(keys, observer, comparator);
-  }
-
-  subscribeAll(
-    observer: (result: { [K in keyof S]: ReturnType<S[K]> }) => void,
-    comparator?: (
-      prev: { [K in keyof S]: ReturnType<S[K]> },
-      next: { [K in keyof S]: ReturnType<S[K]> }
-    ) => boolean
-  ) {
-    return this.connector.subscribeAll(observer, comparator);
-  }
-
-  getState<K extends keyof S>(key: K, cloned = true) {
-    const { cloneFunction } = this;
-    if (cloned && cloneFunction) {
-      return cloneFunction(this.connector.get(key));
+    if (cloneFn) {
+      return cloneFn(this.getState(key));
     }
 
-    return this.connector.get(key);
-  }
-
-  getStates<KS extends keyof S>(keys: KS[], cloned = true) {
-    const { cloneFunction } = this;
-    if (cloned && cloneFunction) {
-      return cloneFunction(this.connector.getMultiple(keys));
+    if (cloneFunction) {
+      return cloneFunction(this.getState(key));
     }
 
-    return this.connector.getMultiple(keys);
-  }
-
-  getStateAll(cloned = true) {
-    const { cloneFunction } = this;
-    if (cloned && cloneFunction) {
-      return cloneFunction(this.connector.getAll());
-    }
-
-    return this.connector.getAll();
-  }
-
-  dispatch<KS extends keyof S>(updated: { [K in KS]: ReturnType<S[K]> }) {
-    this.connector.set(updated);
-    return this;
-  }
-
-  reset<K extends keyof S>(key: K) {
-    this.connector.reset(key);
-    return this;
-  }
-
-  resetAll<KS extends keyof S>(keys?: KS[]) {
-    if (!keys) {
-      const all = this.connector.getAllKeys().reduce((acc, next) => {
-        acc[next] = this.connector.getDefault(next);
-        return acc;
-      }, {} as { [k in keyof S]: ReturnType<S[k]> });
-      this.connector.set(all);
-      return this;
-    }
-    const defaults = keys.reduce((acc, next) => {
-      acc[next] = this.connector.getDefault(next);
-      return acc;
-    }, {} as { [k in KS]: ReturnType<S[k]> });
-    this.connector.set(defaults);
-    return this;
-  }
-
-  getDataSource() {
-    return this.connector.source();
+    return shallowClone(super.getState(key));
   }
 }
 
-export default function IRS<S extends BS>(
+export function NRS<S extends BS>(
   initiator: S,
-  cloneFunction?: <T>(input: T) => T
+  { cloneFunction, cloneFunctionMap, comparator, comparatorMap }: NRSConfig<S>
 ) {
-  return new RxStoreImpl(new ConnectivityImpl(initiator), cloneFunction);
+  return new RxNStoreImpl(
+    new ConnectivityImpl(initiator),
+    cloneFunction,
+    cloneFunctionMap,
+    comparator,
+    comparatorMap
+  );
+}
+
+class RxImStoreImpl<S extends IBS>
+  extends RxStoreImpl<S>
+  implements Subscribable<S>, RxImStore<S>
+{
+  constructor(connector: Connectivity<S>) {
+    super(
+      connector,
+      <IData extends Collection<any, any>>(prev: IData, next: IData) =>
+        is(prev, next)
+    );
+  }
+}
+
+export function IRS<S extends IBS>(initiator: S) {
+  return new RxImStoreImpl(new ConnectivityImpl(initiator));
 }
