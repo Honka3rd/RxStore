@@ -1,12 +1,24 @@
 import { Observable, Subscription } from "rxjs";
-import { is, fromJS, Collection } from "immutable";
+import { Collection, Record, Seq, ValueObject } from "immutable";
 
 export type BS = {
   [k: string]: () => any;
 };
 
+export type ImmutableBase =
+  | Collection<any, any>
+  | Collection.Indexed<any>
+  | Collection.Keyed<any, any>
+  | Collection.Set<any>
+  | Record.Factory<any>
+  | Seq<any, any>
+  | Seq.Indexed<any>
+  | Seq.Keyed<any, any>
+  | Seq.Set<any>
+  | ValueObject;
+
 export interface IBS extends BS {
-  [k: string]: <R extends Collection<any, any>>() => R;
+  [k: string]: () => ImmutableBase;
 }
 
 export type CloneFunction<T> = (input: T) => T;

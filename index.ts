@@ -1,4 +1,4 @@
-import { Collection, is } from "immutable";
+import { is } from "immutable";
 import { ConnectivityImpl } from "./main/connectivity";
 import {
   BS,
@@ -12,6 +12,7 @@ import {
   RxImStore,
   Subscribable,
   IBS,
+  ImmutableBase,
 } from "./main/interfaces";
 import { RxStoreImpl } from "./main/rs";
 
@@ -30,6 +31,14 @@ const shallowClone = <T>(input: T) => {
 
   if (input instanceof RegExp) {
     return new RegExp(input) as T;
+  }
+
+  if (input instanceof Set) {
+    return new Set(input) as T;
+  }
+
+  if (input instanceof Map) {
+    return new Map(input) as T;
   }
 
   const ownKeys = Object.getOwnPropertyNames(input) as Array<keyof T>;
@@ -92,10 +101,8 @@ class RxImStoreImpl<S extends IBS>
   implements Subscribable<S>, RxImStore<S>
 {
   constructor(connector: Connectivity<S>) {
-    super(
-      connector,
-      <IData extends Collection<any, any>>(prev: IData, next: IData) =>
-        is(prev, next)
+    super(connector, <IData extends ImmutableBase>(prev: IData, next: IData) =>
+      is(prev, next)
     );
   }
 }
