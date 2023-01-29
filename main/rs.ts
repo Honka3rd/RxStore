@@ -14,6 +14,9 @@ const shallowCompare = (o1: any, o2: any) => {
     o1 !== null &&
     o2 !== null
   ) {
+    if (Object.getPrototypeOf(o1) !== Object.getPrototypeOf(o2)) {
+      return false;
+    }
     Object.getOwnPropertyNames(o1).forEach((key) => {
       if (o1[key] !== o2[key]) {
         return false;
