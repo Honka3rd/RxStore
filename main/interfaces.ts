@@ -82,10 +82,13 @@ export interface Connectivity<S extends BS>
 
 export interface RxStore<S extends BS> {
   dispatch: <KS extends keyof S>(
-    updated: {
-      [K in KS]: ReturnType<S[K]>;
-    },
-    compare?: boolean
+    updated:
+      | {
+          [K in KS]: ReturnType<S[K]>;
+        }
+      | ((prevAll: { [K in keyof S]: ReturnType<S[K]> }) => {
+          [K in KS]: ReturnType<S[K]>;
+        })
   ) => this;
   reset: <K extends keyof S>(key: K) => this;
   resetAll: <KS extends keyof S>(keys?: KS[]) => this;
