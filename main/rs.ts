@@ -106,7 +106,11 @@ export class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
   ) {
     const { comparator } = this;
     if (typeof updated === "function") {
-      const nextVal = updated(this.getStateAll());
+      const all = this.getStateAll();
+      const nextVal = updated(all);
+      if (all === nextVal) {
+        return this;
+      }
       if (
         !comparator(
           nextVal,
