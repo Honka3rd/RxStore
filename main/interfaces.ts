@@ -86,9 +86,11 @@ export interface RxStore<S extends BS> {
       | {
           [K in KS]: ReturnType<S[K]>;
         }
-      | ((prevAll: { [K in keyof S]: ReturnType<S[K]> }) => {
+      | (<KS extends keyof S>(prevAll: {
           [K in KS]: ReturnType<S[K]>;
-        })
+        }) => Partial<{
+          [K in keyof S]: ReturnType<S[K]>;
+        }>)
   ) => this;
   reset: <K extends keyof S>(key: K) => this;
   resetAll: <KS extends keyof S>(keys?: KS[]) => this;

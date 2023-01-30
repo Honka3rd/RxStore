@@ -7,6 +7,46 @@ import {
   Subscribable,
 } from "./interfaces";
 
+const objectShallowCompareF =
+  <T extends { [k: string]: any }>(
+    comparator: <K extends keyof T>(val1: T[K], val2: T[K]) => boolean = (
+      o1,
+      o2
+    ) => o1 === o2,
+    comparatorMap?: ComparatorMap<any>
+  ) =>
+  (o1: T, o2: T) => {
+    if (Object.getPrototypeOf(o1) !== Object.getPrototypeOf(o2)) {
+      return false;
+    }
+    const ownKeysO1 = Object.getOwnPropertyNames(o1);
+    const ownKeysO2 = Object.getOwnPropertyNames(o2);
+    if (ownKeysO1.length !== ownKeysO2.length) {
+      return false;
+    }
+
+    if (comparatorMap) {
+      for (let key of ownKeysO1) {
+        const compareFn = comparatorMap?.[key]
+          ? comparatorMap[key]!
+          : comparator;
+        if (!compareFn(o1[key], o2[key])) {
+          return false;
+        }
+      }
+    } else {
+      for (let key of ownKeysO1) {
+        if (!comparator(o1[key], o2[key])) {
+          return false;
+        }
+      }
+    }
+
+    return true;
+  };
+
+const objectShallowCompare = objectShallowCompareF();
+
 const shallowCompare = (o1: any, o2: any) => {
   if (
     typeof o1 === "object" &&
@@ -14,15 +54,7 @@ const shallowCompare = (o1: any, o2: any) => {
     o1 !== null &&
     o2 !== null
   ) {
-    if (Object.getPrototypeOf(o1) !== Object.getPrototypeOf(o2)) {
-      return false;
-    }
-    Object.getOwnPropertyNames(o1).forEach((key) => {
-      if (o1[key] !== o2[key]) {
-        return false;
-      }
-    });
-    return true;
+    return objectShallowCompare(o1, o2);
   }
 
   return o1 === o2;
@@ -70,7 +102,9 @@ export class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
       next: { [K in KS]: ReturnType<S[K]> }
     ) => boolean
   ) {
-    const compareFn = comparator ? comparator : this.comparator;
+    const compareFn = comparator
+      ? objectShallowCompareF(comparator)
+      : objectShallowCompareF(this.comparator);
     return this.connector.subscribeMultiple(keys, observer, compareFn);
   }
 
@@ -81,7 +115,9 @@ export class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
       next: { [K in keyof S]: ReturnType<S[K]> }
     ) => boolean
   ) {
-    const compareFn = comparator ? comparator : this.comparator;
+    const compareFn = comparator
+      ? objectShallowCompareF(comparator)
+      : objectShallowCompareF(this.comparator);
     return this.connector.subscribeAll(observer, compareFn);
   }
 
@@ -97,14 +133,19 @@ export class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
     return this.connector.getAll();
   }
 
+  private objectCompare<T extends { [k: string]: any }>(o1: T, o2: T) {
+    return objectShallowCompareF(this.comparator, this.comparatorMap)(o1, o2);
+  }
+
   dispatch<KS extends keyof S>(
     updated:
       | { [K in KS]: ReturnType<S[K]> }
-      | ((prevAll: { [K in keyof S]: ReturnType<S[K]> }) => {
+      | (<KS extends keyof S>(prevAll: {
           [K in KS]: ReturnType<S[K]>;
-        })
+        }) => Partial<{
+          [K in keyof S]: ReturnType<S[K]>;
+        }>)
   ) {
-    const { comparator } = this;
     if (typeof updated === "function") {
       const all = this.getStateAll();
       const nextVal = updated(all);
@@ -112,18 +153,25 @@ export class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
         return this;
       }
       if (
-        !comparator(
+        !this.objectCompare(
           nextVal,
-          this.getStates(Object.getOwnPropertyNames(nextVal))
+          this.getStates(Object.getOwnPropertyNames(nextVal)) as Partial<{
+            [K in keyof S]: ReturnType<S[K]>;
+          }>
         )
       ) {
-        this.connector.set(nextVal);
+        this.connector.set(nextVal as { [K in keyof S]: ReturnType<S[K]> });
       }
 
       return this;
     }
     if (
-      !comparator(updated, this.getStates(Object.getOwnPropertyNames(updated)))
+      !this.objectCompare(
+        updated,
+        this.getStates(Object.getOwnPropertyNames(updated)) as {
+          [K in KS]: ReturnType<S[K]>;
+        }
+      )
     ) {
       this.connector.set(updated);
     }

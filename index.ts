@@ -1,4 +1,4 @@
-import { is } from "immutable";
+import { is, isImmutable } from "immutable";
 import { ConnectivityImpl } from "./main/connectivity";
 import {
   BS,
@@ -79,7 +79,7 @@ class RxNStoreImpl<S extends BS>
       return cloneFunction(this.getState(key));
     }
 
-    return shallowClone(super.getState(key));
+    return shallowClone(this.getState(key));
   }
 }
 
@@ -104,6 +104,12 @@ class RxImStoreImpl<S extends IBS>
     super(connector, <IData extends ImmutableBase>(prev: IData, next: IData) =>
       is(prev, next)
     );
+    const invalid = Object.values(connector.getDefaultAll()).find(
+      (val) => !isImmutable(val)
+    );
+    if (invalid) {
+      throw Error(`${String(invalid)} is not an immutable Object`);
+    }
   }
 }
 
