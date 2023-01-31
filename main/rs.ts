@@ -4,6 +4,7 @@ import {
   Comparator,
   ComparatorMap,
   Connectivity,
+  Dispatch,
   Dispatcher,
   Reducer,
   RxStore,
@@ -65,6 +66,10 @@ const shallowCompare = (o1: any, o2: any) => {
 
 export class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
   private comparator: Comparator<any> = shallowCompare;
+  private objectCompare: <T extends { [k: string]: any }>(
+    o1: T,
+    o2: T
+  ) => boolean;
   constructor(
     private connector: Connectivity<S>,
     comparator?: Comparator<any>,
@@ -73,6 +78,10 @@ export class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
     if (comparator) {
       this.comparator = comparator;
     }
+    this.objectCompare = objectShallowCompareF(
+      this.comparator,
+      this.comparatorMap
+    );
     this.setState = this.setState.bind(this);
     this.getState = this.getState.bind(this);
     this.getStateAll = this.getStateAll.bind(this);
@@ -83,7 +92,7 @@ export class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
     this.observeMultiple = this.observeMultiple.bind(this);
     this.observe = this.observe.bind(this);
     this.getDataSource = this.getDataSource.bind(this);
-    this.createDispatcher = this.createDispatcher.bind(this);
+    this.createDispatch = this.createDispatch.bind(this);
   }
 
   observe<K extends keyof S>(
@@ -137,10 +146,6 @@ export class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
     return this.connector.getAll();
   }
 
-  private objectCompare<T extends { [k: string]: any }>(o1: T, o2: T) {
-    return objectShallowCompareF(this.comparator, this.comparatorMap)(o1, o2);
-  }
-
   setState<KS extends keyof S>(
     updated:
       | { [K in KS]: ReturnType<S[K]> }
@@ -159,7 +164,7 @@ export class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
       if (
         !this.objectCompare(
           nextVal,
-          this.getStates(Object.getOwnPropertyNames(nextVal)) as Partial<{
+          this.getStates(Object.keys(nextVal)) as Partial<{
             [K in keyof S]: ReturnType<S[K]>;
           }>
         )
@@ -172,7 +177,7 @@ export class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
     if (
       !this.objectCompare(
         updated,
-        this.getStates(Object.getOwnPropertyNames(updated)) as {
+        this.getStates(Object.keys(updated)) as {
           [K in KS]: ReturnType<S[K]>;
         }
       )
@@ -200,10 +205,11 @@ export class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
     return this.connector.source();
   }
 
-  createDispatcher<K extends keyof S, T>(params: {
+  createDispatch<K extends keyof S, T>(params: {
     reducer: Reducer<S, K, T>;
     key: K;
-  }): Dispatcher<S, K, T> {
-    return new DispatcherImpl<S, K, T>(params.reducer, this, params.key);
+  }): Dispatch<S, K, T> {
+    return new DispatcherImpl<S, K, T>(params.reducer, this, params.key)
+      .dispatch;
   }
 }

@@ -92,8 +92,13 @@ export type Reducer<S extends BS, K extends keyof S, T> = (
   action: { type: T; payload: ReturnType<S[K]> }
 ) => ReturnType<S[K]>;
 
+export type Dispatch<S extends BS, K extends keyof S, T> = (action: {
+  type: T;
+  payload: ReturnType<S[K]>;
+}) => void;
+
 export interface Dispatcher<S extends BS, K extends keyof S, T> {
-  dispatch: (action: { type: T; payload: ReturnType<S[K]> }) => void;
+  dispatch: Dispatch<S, K, T>;
 }
 
 export interface RxStore<S extends BS> {
@@ -116,10 +121,10 @@ export interface RxStore<S extends BS> {
   ) => { [K in KS]: ReturnType<S[K]> };
   getStateAll: () => { [K in keyof S]: ReturnType<S[K]> };
   getDataSource: () => Observable<{ [K in keyof S]: ReturnType<S[K]> }>;
-  createDispatcher: <K extends keyof S, T>(params: {
+  createDispatch: <K extends keyof S, T>(params: {
     reducer: Reducer<S, K, T>;
     key: K;
-  }) => Dispatcher<S, K, T>;
+  }) => Dispatch<S, K, T>;
 }
 
 export interface RxNStore<S extends BS> extends RxStore<S> {

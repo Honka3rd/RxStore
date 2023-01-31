@@ -9,7 +9,7 @@ export class ReactiveImpl<S extends BS> implements Reactive<S> {
   }
 
   private init(): BehaviorSubject<{ [K in keyof S]: ReturnType<S[K]> }> {
-    const keys = Object.getOwnPropertyNames(this.initiator) as Array<keyof S>;
+    const keys = Object.keys(this.initiator) as Array<keyof S>;
     const initData = keys.reduce((acc, next) => {
       acc[next] = this.initiator[next]();
       return acc;
@@ -23,7 +23,7 @@ export class ReactiveImpl<S extends BS> implements Reactive<S> {
 
   set<KS extends keyof S>(updated: { [K in KS]: ReturnType<S[K]> }) {
     const data = this.dataSource.value;
-    const keys = Object.getOwnPropertyNames(updated) as Array<KS>;
+    const keys = Object.keys(updated) as Array<KS>;
     keys.forEach((k) => {
       data[k] = updated[k];
     });
@@ -73,6 +73,6 @@ export class ReactiveImpl<S extends BS> implements Reactive<S> {
   }
 
   getAllKeys(): Array<keyof S> {
-    return Object.getOwnPropertyNames(this.initiator);
+    return Object.keys(this.initiator);
   }
 }
