@@ -72,6 +72,7 @@ class RxNStoreImpl<S extends BS>
   ) {
     super(connector, comparator, comparatorMap);
     this.getClonedState = this.getClonedState.bind(this);
+    this.getImmutableState = this.getImmutableState.bind(this);
   }
 
   getClonedState<K extends keyof S>(key: K) {
