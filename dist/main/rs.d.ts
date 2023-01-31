@@ -27,8 +27,8 @@ export declare class RxStoreImpl<S extends BS> implements Subscribable<S>, RxSto
     getStateAll(): { [K in keyof S]: ReturnType<S[K]>; };
     setState<KS extends keyof S>(updated: {
         [K in KS]: ReturnType<S[K]>;
-    } | (<KS extends keyof S>(prevAll: {
-        [K in KS]: ReturnType<S[K]>;
+    } | ((prevAll: {
+        [K in keyof S]: ReturnType<S[K]>;
     }) => Partial<{
         [K in keyof S]: ReturnType<S[K]>;
     }>)): this;
