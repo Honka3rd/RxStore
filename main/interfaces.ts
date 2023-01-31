@@ -15,7 +15,12 @@ export type ImmutableBase =
   | Seq.Indexed<any>
   | Seq.Keyed<any, any>
   | Seq.Set<any>
-  | ValueObject;
+  | ValueObject
+  | number
+  | string
+  | null
+  | bigint
+  | boolean;
 
 export interface IBS extends BS {
   [k: string]: () => ImmutableBase;
@@ -57,23 +62,25 @@ export interface Reactive<S extends BS> {
   getDefaultAll: () => { [k in keyof S]: ReturnType<S[k]> };
 }
 
+type Unobserve = () => void;
+
 export type Subscribable<S extends BS> = {
-  subscribeTo: <K extends keyof S>(
+  observe: <K extends keyof S>(
     key: K,
     observer: (result: ReturnType<S[K]>) => void,
     comparator?: Comparator<ReturnType<S[K]>>
-  ) => Subscription;
+  ) => Unobserve;
 
-  subscribeMultiple: <KS extends keyof S>(
+  observeMultiple: <KS extends keyof S>(
     keys: KS[],
     observer: (result: { [K in KS]: ReturnType<S[K]> }) => void,
     comparator?: Comparator<{ [K in KS]: ReturnType<S[K]> }>
-  ) => Subscription;
+  ) => Unobserve;
 
-  subscribeAll: (
+  observeAll: (
     observer: (result: { [K in keyof S]: ReturnType<S[K]> }) => void,
     comparator?: Comparator<{ [K in keyof S]: ReturnType<S[K]> }>
-  ) => Subscription;
+  ) => Unobserve;
 };
 
 export interface Connectivity<S extends BS>
@@ -81,7 +88,7 @@ export interface Connectivity<S extends BS>
     Subscribable<S> {}
 
 export interface RxStore<S extends BS> {
-  dispatch: <KS extends keyof S>(
+  setState: <KS extends keyof S>(
     updated:
       | {
           [K in KS]: ReturnType<S[K]>;
@@ -104,6 +111,20 @@ export interface RxStore<S extends BS> {
 
 export interface RxNStore<S extends BS> extends RxStore<S> {
   getClonedState: <K extends keyof S>(key: K) => ReturnType<S[K]>;
+  getImmutableState: <K extends keyof S>(
+    key: K
+  ) =>
+    | {
+        success: true;
+        immutable: Collection<
+          keyof ReturnType<S[K]>,
+          ReturnType<S[K]>[keyof ReturnType<S[K]>]
+        >;
+      }
+    | {
+        success: false;
+        immutable: ReturnType<S[K]>;
+      };
 }
 
 export type NRSConfig<S extends BS> = {

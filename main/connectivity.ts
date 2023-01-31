@@ -10,25 +10,26 @@ export class ConnectivityImpl<S extends BS>
     super(initiator);
   }
 
-  subscribeTo<K extends keyof S>(
+  observe<K extends keyof S>(
     key: K,
     observer: (result: ReturnType<S[K]>) => void,
     comparator?: Comparator<ReturnType<S[K]>>
   ) {
-    return this.source()
+    const subscription = this.source()
       .pipe(
         map((val) => val[key]),
         distinctUntilChanged(comparator)
       )
       .subscribe(observer);
+    return () => subscription.unsubscribe();
   }
 
-  subscribeMultiple<KS extends keyof S>(
+  observeMultiple<KS extends keyof S>(
     keys: KS[],
     observer: (result: { [K in KS]: ReturnType<S[K]> }) => void,
     comparator?: Comparator<{ [K in KS]: ReturnType<S[K]> }>
   ) {
-    return this.source()
+    const subscription = this.source()
       .pipe(
         map((val) => {
           return keys.reduce((acc, next) => {
@@ -39,17 +40,19 @@ export class ConnectivityImpl<S extends BS>
         distinctUntilChanged(comparator)
       )
       .subscribe(observer);
+    return () => subscription.unsubscribe();
   }
 
-  subscribeAll(
+  observeAll(
     observer: (result: { [K in keyof S]: ReturnType<S[K]> }) => void,
     comparator?: Comparator<{ [K in keyof S]: ReturnType<S[K]> }>
   ) {
-    return this.source()
+    const subscription = this.source()
       .pipe(
         map((val) => ({ ...val })),
         distinctUntilChanged(comparator)
       )
       .subscribe(observer);
+    return () => subscription.unsubscribe();
   }
 }

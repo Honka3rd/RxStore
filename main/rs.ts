@@ -70,19 +70,19 @@ export class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
     if (comparator) {
       this.comparator = comparator;
     }
-    this.dispatch = this.dispatch.bind(this);
+    this.setState = this.setState.bind(this);
     this.getState = this.getState.bind(this);
     this.getStateAll = this.getStateAll.bind(this);
     this.getStates = this.getStates.bind(this);
     this.reset = this.reset.bind(this);
     this.resetAll = this.resetAll.bind(this);
-    this.subscribeAll = this.subscribeAll.bind(this);
-    this.subscribeMultiple = this.subscribeMultiple.bind(this);
-    this.subscribeTo = this.subscribeTo.bind(this);
+    this.observeAll = this.observeAll.bind(this);
+    this.observeMultiple = this.observeMultiple.bind(this);
+    this.observe = this.observe.bind(this);
     this.getDataSource = this.getDataSource.bind(this);
   }
 
-  subscribeTo<K extends keyof S>(
+  observe<K extends keyof S>(
     key: K,
     observer: (result: ReturnType<S[K]>) => void,
     comparator?: (prev: ReturnType<S[K]>, next: ReturnType<S[K]>) => boolean
@@ -91,10 +91,10 @@ export class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
       ? this.comparatorMap[key]
       : this.comparator;
     const compareFn = comparator ? comparator : presetComparetor;
-    return this.connector.subscribeTo(key, observer, compareFn);
+    return this.connector.observe(key, observer, compareFn);
   }
 
-  subscribeMultiple<KS extends keyof S>(
+  observeMultiple<KS extends keyof S>(
     keys: KS[],
     observer: (result: { [K in KS]: ReturnType<S[K]> }) => void,
     comparator?: (
@@ -104,11 +104,11 @@ export class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
   ) {
     const compareFn = comparator
       ? objectShallowCompareF(comparator)
-      : objectShallowCompareF(this.comparator);
-    return this.connector.subscribeMultiple(keys, observer, compareFn);
+      : objectShallowCompareF(this.comparator, this.comparatorMap);
+    return this.connector.observeMultiple(keys, observer, compareFn);
   }
 
-  subscribeAll(
+  observeAll(
     observer: (result: { [K in keyof S]: ReturnType<S[K]> }) => void,
     comparator?: (
       prev: { [K in keyof S]: ReturnType<S[K]> },
@@ -117,8 +117,8 @@ export class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
   ) {
     const compareFn = comparator
       ? objectShallowCompareF(comparator)
-      : objectShallowCompareF(this.comparator);
-    return this.connector.subscribeAll(observer, compareFn);
+      : objectShallowCompareF(this.comparator, this.comparatorMap);
+    return this.connector.observeAll(observer, compareFn);
   }
 
   getState<K extends keyof S>(key: K) {
@@ -137,7 +137,7 @@ export class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
     return objectShallowCompareF(this.comparator, this.comparatorMap)(o1, o2);
   }
 
-  dispatch<KS extends keyof S>(
+  setState<KS extends keyof S>(
     updated:
       | { [K in KS]: ReturnType<S[K]> }
       | (<KS extends keyof S>(prevAll: {

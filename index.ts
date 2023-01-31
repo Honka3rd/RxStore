@@ -1,4 +1,4 @@
-import { is, isImmutable } from "immutable";
+import { Collection, fromJS, is, isImmutable } from "immutable";
 import { ConnectivityImpl } from "./main/connectivity";
 import {
   BS,
@@ -52,6 +52,13 @@ const shallowClone = <T>(input: T) => {
   return copied as T;
 };
 
+const isPremitive = (val: unknown) => {
+  return !(
+    (typeof val === "object" && val !== null) ||
+    typeof val === "function"
+  );
+};
+
 class RxNStoreImpl<S extends BS>
   extends RxStoreImpl<S>
   implements Subscribable<S>, RxNStore<S>
@@ -81,6 +88,30 @@ class RxNStoreImpl<S extends BS>
 
     return shallowClone(this.getState(key));
   }
+
+  getImmutableState<K extends keyof S>(key: K) {
+    const origin = this.getState(key);
+    if (isPremitive(origin)) {
+      return {
+        success: true,
+        immutable: origin,
+      };
+    }
+    const immutified = fromJS(origin) as Collection<
+      keyof ReturnType<S[K]>,
+      ReturnType<S[K]>[keyof ReturnType<S[K]>]
+    >;
+    if (isImmutable(immutified)) {
+      return {
+        success: true,
+        immutable: immutified,
+      } as const;
+    }
+    return {
+      success: false,
+      immutable: origin,
+    };
+  }
 }
 
 export function NRS<S extends BS>(
@@ -105,7 +136,7 @@ class RxImStoreImpl<S extends IBS>
       is(prev, next)
     );
     const invalid = Object.values(connector.getDefaultAll()).find(
-      (val) => !isImmutable(val)
+      (val) => val === undefined || (!isImmutable(val) && !isPremitive(val))
     );
     if (invalid) {
       throw Error(`${String(invalid)} is not an immutable Object`);
