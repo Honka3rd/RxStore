@@ -117,7 +117,12 @@ class RxNStoreImpl<S extends BS>
 
 export function NRS<S extends BS>(
   initiator: S,
-  { cloneFunction, cloneFunctionMap, comparator, comparatorMap }: NRSConfig<S>
+  {
+    cloneFunction,
+    cloneFunctionMap,
+    comparator,
+    comparatorMap,
+  }: Partial<NRSConfig<S>> = {}
 ) {
   return new RxNStoreImpl(
     new ConnectivityImpl(initiator),
@@ -133,8 +138,14 @@ class RxImStoreImpl<S extends IBS>
   implements Subscribable<S>, RxImStore<S>
 {
   constructor(connector: Connectivity<S>) {
-    super(connector, <IData extends ImmutableBase>(prev: IData, next: IData) =>
-      is(prev, next)
+    super(
+      connector,
+      <IData extends ImmutableBase>(prev: IData, next: IData) => {
+        if (isImmutable(prev) && isImmutable(next)) {
+          return is(prev, next);
+        }
+        return prev === next;
+      }
     );
     const invalid = Object.values(connector.getDefaultAll()).find(
       (val) => val === undefined || (!isImmutable(val) && !isPremitive(val))

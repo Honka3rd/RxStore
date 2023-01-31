@@ -5,7 +5,6 @@ import {
   ComparatorMap,
   Connectivity,
   Dispatch,
-  Dispatcher,
   Reducer,
   RxStore,
   Subscribable,
