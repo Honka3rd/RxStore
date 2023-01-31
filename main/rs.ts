@@ -148,8 +148,8 @@ export class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
   setState<KS extends keyof S>(
     updated:
       | { [K in KS]: ReturnType<S[K]> }
-      | (<KS extends keyof S>(prevAll: {
-          [K in KS]: ReturnType<S[K]>;
+      | ((prevAll: {
+          [K in keyof S]: ReturnType<S[K]>;
         }) => Partial<{
           [K in keyof S]: ReturnType<S[K]>;
         }>)
