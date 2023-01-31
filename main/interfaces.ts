@@ -1,4 +1,4 @@
-import { Observable, Subscription } from "rxjs";
+import { Observable } from "rxjs";
 import { Collection, Record, Seq, ValueObject } from "immutable";
 
 export type BS = {
@@ -87,6 +87,15 @@ export interface Connectivity<S extends BS>
   extends Reactive<S>,
     Subscribable<S> {}
 
+export type Reducer<S extends BS, K extends keyof S, T> = (
+  state: ReturnType<S[K]>,
+  action: { type: T; payload: ReturnType<S[K]> }
+) => ReturnType<S[K]>;
+
+export interface Dispatcher<S extends BS, K extends keyof S, T> {
+  dispatch: (action: { type: T; payload: ReturnType<S[K]> }) => void;
+}
+
 export interface RxStore<S extends BS> {
   setState: <KS extends keyof S>(
     updated:
@@ -107,6 +116,10 @@ export interface RxStore<S extends BS> {
   ) => { [K in KS]: ReturnType<S[K]> };
   getStateAll: () => { [K in keyof S]: ReturnType<S[K]> };
   getDataSource: () => Observable<{ [K in keyof S]: ReturnType<S[K]> }>;
+  createDispatcher: <K extends keyof S, T>(params: {
+    reducer: Reducer<S, K, T>;
+    key: K;
+  }) => Dispatcher<S, K, T>;
 }
 
 export interface RxNStore<S extends BS> extends RxStore<S> {

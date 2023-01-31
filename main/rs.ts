@@ -1,8 +1,11 @@
+import { DispatcherImpl } from "./dispatcher";
 import {
   BS,
   Comparator,
   ComparatorMap,
   Connectivity,
+  Dispatcher,
+  Reducer,
   RxStore,
   Subscribable,
 } from "./interfaces";
@@ -80,6 +83,7 @@ export class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
     this.observeMultiple = this.observeMultiple.bind(this);
     this.observe = this.observe.bind(this);
     this.getDataSource = this.getDataSource.bind(this);
+    this.createDispatcher = this.createDispatcher.bind(this);
   }
 
   observe<K extends keyof S>(
@@ -194,5 +198,12 @@ export class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
 
   getDataSource() {
     return this.connector.source();
+  }
+
+  createDispatcher<K extends keyof S, T>(params: {
+    reducer: Reducer<S, K, T>;
+    key: K;
+  }): Dispatcher<S, K, T> {
+    return new DispatcherImpl<S, K, T>(params.reducer, this, params.key);
   }
 }
