@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RxStoreImpl = void 0;
+var computed_1 = require("./computed");
 var dispatcher_1 = require("./dispatcher");
 var objectShallowCompareF = function (comparator, comparatorMap) {
     if (comparator === void 0) { comparator = function (o1, o2) { return o1 === o2; }; }
@@ -130,6 +131,9 @@ var RxStoreImpl = /** @class */ (function () {
     RxStoreImpl.prototype.createDispatch = function (params) {
         return new dispatcher_1.DispatcherImpl(params.reducer, this, params.key)
             .dispatch;
+    };
+    RxStoreImpl.prototype.createComputed = function (params) {
+        return new computed_1.ComputedImpl(params.computation, this, params.keys, this.comparator);
     };
     return RxStoreImpl;
 }());

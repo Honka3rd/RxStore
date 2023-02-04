@@ -1,4 +1,5 @@
-import { BS, Comparator, Connectivity, Dispatch, Reducer, RxStore, Subscribable } from "./interfaces";
+import { ComputedImpl } from "./computed";
+import { BS, Comparator, Computation, Connectivity, Dispatch, Reducer, RxStore, Subscribable } from "./interfaces";
 export declare class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
     private connector;
     private comparatorMap?;
@@ -35,8 +36,12 @@ export declare class RxStoreImpl<S extends BS> implements Subscribable<S>, RxSto
     reset<K extends keyof S>(key: K): this;
     resetAll<KS extends keyof S>(keys?: KS[]): this;
     getDataSource(): import("rxjs").Observable<{ [K in keyof S]: ReturnType<S[K]>; }>;
-    createDispatch<K extends keyof S, T>(params: {
-        reducer: Reducer<S, K, T>;
+    createDispatch<K extends keyof S, T, P = void>(params: {
+        reducer: Reducer<T, P, S, K>;
         key: K;
-    }): Dispatch<S, K, T>;
+    }): Dispatch<P, T>;
+    createComputed<R, KS extends keyof S>(params: {
+        computation: Computation<R, S, KS>;
+        keys: KS[];
+    }): ComputedImpl<R, S, KS>;
 }

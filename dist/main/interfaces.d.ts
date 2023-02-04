@@ -55,16 +55,22 @@ export type Subscribable<S extends BS> = {
 };
 export interface Connectivity<S extends BS> extends Reactive<S>, Subscribable<S> {
 }
-export type Reducer<S extends BS, K extends keyof S, T> = (state: ReturnType<S[K]>, action: {
+export type Action<P, T> = {
     type: T;
-    payload: ReturnType<S[K]>;
-}) => ReturnType<S[K]>;
-export type Dispatch<S extends BS, K extends keyof S, T> = (action: {
-    type: T;
-    payload: ReturnType<S[K]>;
-}) => void;
-export interface Dispatcher<S extends BS, K extends keyof S, T> {
-    dispatch: Dispatch<S, K, T>;
+    payload: P;
+};
+export type Reducer<P, T, S extends BS, K extends keyof S> = (state: ReturnType<S[K]>, action: Action<T, P>) => ReturnType<S[K]>;
+export type Dispatch<P, T> = (action: Action<P, T>) => void;
+export interface Dispatcher<P, T> {
+    dispatch: Dispatch<P, T>;
+}
+export type Computation<R, S extends BS, KS extends keyof S> = (states: {
+    [K in KS]: ReturnType<S[K]>;
+}) => R;
+export interface Computed<R, S extends BS, KS extends keyof S> {
+    readonly computation: Computation<R, S, KS>;
+    get: () => R | undefined;
+    start: (observer: (r: R) => void) => Unobserve;
 }
 export interface RxStore<S extends BS> {
     setState: <KS extends keyof S>(updated: {
@@ -86,10 +92,14 @@ export interface RxStore<S extends BS> {
     getDataSource: () => Observable<{
         [K in keyof S]: ReturnType<S[K]>;
     }>;
-    createDispatch: <K extends keyof S, T>(params: {
-        reducer: Reducer<S, K, T>;
+    createDispatch: <K extends keyof S, T, P = void>(params: {
+        reducer: Reducer<T, P, S, K>;
         key: K;
-    }) => Dispatch<S, K, T>;
+    }) => Dispatch<P, T>;
+    createComputed: <R, KS extends keyof S>(params: {
+        computation: Computation<R, S, KS>;
+        keys: KS[];
+    }) => Computed<R, S, KS>;
 }
 export interface RxNStore<S extends BS> extends RxStore<S> {
     getClonedState: <K extends keyof S>(key: K) => ReturnType<S[K]>;

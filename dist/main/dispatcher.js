@@ -10,8 +10,9 @@ var DispatcherImpl = /** @class */ (function () {
     }
     DispatcherImpl.prototype.dispatch = function (action) {
         var _a;
-        var nextVal = this.reducer(this.store.getState(this.key), action);
-        this.store.setState(Object.create((_a = {}, _a[this.key] = nextVal, _a)));
+        this.store.setState(Object.create((_a = {},
+            _a[this.key] = this.reducer(this.store.getState(this.key), action),
+            _a)));
     };
     return DispatcherImpl;
 }());

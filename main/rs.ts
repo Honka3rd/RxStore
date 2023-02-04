@@ -1,8 +1,10 @@
+import { ComputedImpl } from "./computed";
 import { DispatcherImpl } from "./dispatcher";
 import {
   BS,
   Comparator,
   ComparatorMap,
+  Computation,
   Connectivity,
   Dispatch,
   Reducer,
@@ -204,11 +206,23 @@ export class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
     return this.connector.source();
   }
 
-  createDispatch<K extends keyof S, T>(params: {
-    reducer: Reducer<S, K, T>;
+  createDispatch<K extends keyof S, T, P = void>(params: {
+    reducer: Reducer<T, P, S, K>;
     key: K;
-  }): Dispatch<S, K, T> {
-    return new DispatcherImpl<S, K, T>(params.reducer, this, params.key)
+  }): Dispatch<P, T> {
+    return new DispatcherImpl<S, K, T, P>(params.reducer, this, params.key)
       .dispatch;
+  }
+
+  createComputed<R, KS extends keyof S>(params: {
+    computation: Computation<R, S, KS>;
+    keys: KS[];
+  }) {
+    return new ComputedImpl(
+      params.computation,
+      this,
+      params.keys,
+      this.comparator
+    );
   }
 }
