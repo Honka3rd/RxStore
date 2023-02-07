@@ -2,7 +2,7 @@ import {
   Computed,
   Computation,
   BS,
-  Subscribable,
+  Connectivity,
   Comparator,
 } from "./interfaces";
 
@@ -10,15 +10,16 @@ export class ComputedImpl<R, S extends BS, KS extends keyof S>
   implements Computed<R, S, KS>
 {
   readonly computation: Computation<R, S, KS>;
-  private computed?: R;
+  private computed: R;
 
   constructor(
     computation: Computation<R, S, KS>,
-    private subscribable: Subscribable<S>,
+    private subscribable: Connectivity<S>,
     private keys: Array<KS>,
     private comparator?: Comparator<{ [K in KS]: ReturnType<S[K]> }>
   ) {
     this.computation = computation;
+    this.computed = this.computation(subscribable.getDefaultAll());
     this.get = this.get.bind(this);
     this.start = this.start.bind(this);
   }

@@ -13,51 +13,11 @@ import {
   Subscribable,
   IBS,
   ImmutableBase,
+  ReactiveConfig,
 } from "./main/interfaces";
 import { RxStoreImpl } from "./main/rs";
-
-const shallowClone = <T>(input: T) => {
-  if (!input) {
-    return input;
-  }
-
-  if (typeof input !== "object") {
-    return input;
-  }
-
-  if (input instanceof Date) {
-    return new Date(input) as T;
-  }
-
-  if (input instanceof RegExp) {
-    return new RegExp(input) as T;
-  }
-
-  if (input instanceof Set) {
-    return new Set(input) as T;
-  }
-
-  if (input instanceof Map) {
-    return new Map(input) as T;
-  }
-
-  const ownKeys = Object.getOwnPropertyNames(input) as Array<keyof T>;
-  const copied = Object.create(
-    Object.getPrototypeOf(input),
-    Object.getOwnPropertyDescriptors(input)
-  );
-  ownKeys.forEach((k: keyof T) => {
-    copied[k] = input[k];
-  });
-  return copied as T;
-};
-
-const isPremitive = (val: unknown) => {
-  return !(
-    (typeof val === "object" && val !== null) ||
-    typeof val === "function"
-  );
-};
+import { isPremitive } from "./main/util/isPremitive";
+import { shallowClone } from "./main/util/shallowClone";
 
 class RxNStoreImpl<S extends BS>
   extends RxStoreImpl<S>
@@ -68,9 +28,10 @@ class RxNStoreImpl<S extends BS>
     private cloneFunction?: CloneFunction<ReturnType<S[keyof S]>>,
     private cloneFunctionMap?: CloneFunctionMap<S>,
     comparator?: Comparator<any>,
-    comparatorMap?: ComparatorMap<any>
+    comparatorMap?: ComparatorMap<any>,
+    config?: ReactiveConfig
   ) {
-    super(connector, comparator, comparatorMap);
+    super(connector, comparator, comparatorMap, config);
     this.getClonedState = this.getClonedState.bind(this);
     this.getImmutableState = this.getImmutableState.bind(this);
   }
@@ -122,10 +83,11 @@ export function NRS<S extends BS>(
     cloneFunctionMap,
     comparator,
     comparatorMap,
+    config,
   }: Partial<NRSConfig<S>> = {}
 ) {
   return new RxNStoreImpl(
-    new ConnectivityImpl(initiator),
+    new ConnectivityImpl(initiator, config),
     cloneFunction,
     cloneFunctionMap,
     comparator,
@@ -137,7 +99,7 @@ class RxImStoreImpl<S extends IBS>
   extends RxStoreImpl<S>
   implements Subscribable<S>, RxImStore<S>
 {
-  constructor(connector: Connectivity<S>) {
+  constructor(connector: Connectivity<S>, config?: ReactiveConfig) {
     super(
       connector,
       <IData extends ImmutableBase>(prev: IData, next: IData) => {
@@ -145,7 +107,9 @@ class RxImStoreImpl<S extends IBS>
           return is(prev, next);
         }
         return prev === next;
-      }
+      },
+      undefined,
+      config
     );
     const invalid = Object.values(connector.getDefaultAll()).find(
       (val) => val === undefined || (!isImmutable(val) && !isPremitive(val))
@@ -156,6 +120,6 @@ class RxImStoreImpl<S extends IBS>
   }
 }
 
-export function IRS<S extends IBS>(initiator: S) {
-  return new RxImStoreImpl(new ConnectivityImpl(initiator));
+export function IRS<S extends IBS>(initiator: S, config?: ReactiveConfig) {
+  return new RxImStoreImpl(new ConnectivityImpl(initiator, config));
 }

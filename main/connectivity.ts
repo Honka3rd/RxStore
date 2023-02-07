@@ -1,13 +1,16 @@
 import { distinctUntilChanged, map } from "rxjs";
-import { BS, Comparator, Connectivity } from "./interfaces";
+import { BS, Comparator, Connectivity, ReactiveConfig } from "./interfaces";
 import { ReactiveImpl } from "./reactive";
 
 export class ConnectivityImpl<S extends BS>
   extends ReactiveImpl<S>
   implements Connectivity<S>
 {
-  constructor(initiator: S) {
-    super(initiator);
+  constructor(
+    initiator: S,
+    config: ReactiveConfig = { schedule: "sync", fireOnCreate: false }
+  ) {
+    super(initiator, config);
   }
 
   observe<K extends keyof S>(

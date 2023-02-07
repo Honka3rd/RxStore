@@ -43,6 +43,10 @@ export interface Reactive<S extends BS> {
 
   reset: <K extends keyof S>(key: K) => void;
 
+  resetMultiple: <KS extends Array<keyof S>>(keys: KS) => void;
+
+  resetAll: () => void;
+
   set: <KS extends keyof S>(updated: { [K in KS]: ReturnType<S[K]> }) => void;
 
   source: () => Observable<{ [K in keyof S]: ReturnType<S[K]> }>;
@@ -81,6 +85,11 @@ export type Subscribable<S extends BS> = {
     observer: (result: { [K in keyof S]: ReturnType<S[K]> }) => void,
     comparator?: Comparator<{ [K in keyof S]: ReturnType<S[K]> }>
   ) => Unobserve;
+};
+
+export type ReactiveConfig = {
+  fireOnCreate: boolean;
+  schedule: "sync" | "async";
 };
 
 export interface Connectivity<S extends BS>
@@ -126,7 +135,8 @@ export interface RxStore<S extends BS> {
         }>)
   ) => this;
   reset: <K extends keyof S>(key: K) => this;
-  resetAll: <KS extends keyof S>(keys?: KS[]) => this;
+  resetMultiple: <KS extends Array<keyof S>>(keys: KS) => this;
+  resetAll: () => this;
   getState: <K extends keyof S>(key: K) => ReturnType<S[K]>;
   getStates: <KS extends keyof S>(
     keys: KS[]
@@ -137,7 +147,7 @@ export interface RxStore<S extends BS> {
     reducer: Reducer<T, P, S, K>;
     key: K;
   }) => Dispatch<P, T>;
-  createComputed: <R, KS extends keyof S>(params: {
+  withComputation: <R, KS extends keyof S>(params: {
     computation: Computation<R, S, KS>;
     keys: KS[];
   }) => Computed<R, S, KS>;
@@ -166,6 +176,7 @@ export type NRSConfig<S extends BS> = {
   cloneFunctionMap: CloneFunctionMap<S>;
   comparator: Comparator<any>;
   comparatorMap: ComparatorMap<S>;
+  config: ReactiveConfig
 };
 
 export interface RxImStore<IS extends IBS> extends RxStore<IS> {}

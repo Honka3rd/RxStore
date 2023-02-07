@@ -7,63 +7,13 @@ import {
   Computation,
   Connectivity,
   Dispatch,
+  ReactiveConfig,
   Reducer,
   RxStore,
   Subscribable,
 } from "./interfaces";
-
-const objectShallowCompareF =
-  <T extends { [k: string]: any }>(
-    comparator: <K extends keyof T>(val1: T[K], val2: T[K]) => boolean = (
-      o1,
-      o2
-    ) => o1 === o2,
-    comparatorMap?: ComparatorMap<any>
-  ) =>
-  (o1: T, o2: T) => {
-    if (Object.getPrototypeOf(o1) !== Object.getPrototypeOf(o2)) {
-      return false;
-    }
-    const ownKeysO1 = Object.getOwnPropertyNames(o1);
-    const ownKeysO2 = Object.getOwnPropertyNames(o2);
-    if (ownKeysO1.length !== ownKeysO2.length) {
-      return false;
-    }
-
-    if (comparatorMap) {
-      for (let key of ownKeysO1) {
-        const compareFn = comparatorMap?.[key]
-          ? comparatorMap[key]!
-          : comparator;
-        if (!compareFn(o1[key], o2[key])) {
-          return false;
-        }
-      }
-    } else {
-      for (let key of ownKeysO1) {
-        if (!comparator(o1[key], o2[key])) {
-          return false;
-        }
-      }
-    }
-
-    return true;
-  };
-
-const objectShallowCompare = objectShallowCompareF();
-
-const shallowCompare = (o1: any, o2: any) => {
-  if (
-    typeof o1 === "object" &&
-    typeof o2 === "object" &&
-    o1 !== null &&
-    o2 !== null
-  ) {
-    return objectShallowCompare(o1, o2);
-  }
-
-  return o1 === o2;
-};
+import { objectShallowCompareF } from "./util/objectShallowCompareFactory";
+import { shallowCompare } from "./util/shallowCompare";
 
 export class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
   private comparator: Comparator<any> = shallowCompare;
@@ -74,7 +24,8 @@ export class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
   constructor(
     private connector: Connectivity<S>,
     comparator?: Comparator<any>,
-    private comparatorMap?: ComparatorMap<any>
+    private comparatorMap?: ComparatorMap<any>,
+    config?: ReactiveConfig
   ) {
     if (comparator) {
       this.comparator = comparator;
@@ -89,6 +40,7 @@ export class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
     this.getStates = this.getStates.bind(this);
     this.reset = this.reset.bind(this);
     this.resetAll = this.resetAll.bind(this);
+    this.resetMultiple = this.resetMultiple.bind(this);
     this.observeAll = this.observeAll.bind(this);
     this.observeMultiple = this.observeMultiple.bind(this);
     this.observe = this.observe.bind(this);
@@ -193,12 +145,13 @@ export class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
     return this;
   }
 
-  resetAll<KS extends keyof S>(keys?: KS[]) {
-    if (!keys) {
-      this.connector.set(this.connector.getDefaultAll());
-      return this;
-    }
-    this.connector.set(this.connector.getDefaults(keys));
+  resetMultiple<KS extends (keyof S)[]>(keys: KS) {
+    this.connector.resetMultiple(keys);
+    return this;
+  }
+
+  resetAll() {
+    this.connector.resetAll();
     return this;
   }
 
@@ -214,13 +167,13 @@ export class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
       .dispatch;
   }
 
-  createComputed<R, KS extends keyof S>(params: {
+  withComputation<R, KS extends keyof S>(params: {
     computation: Computation<R, S, KS>;
     keys: KS[];
   }) {
     return new ComputedImpl(
       params.computation,
-      this,
+      this.connector,
       params.keys,
       this.comparator
     );
