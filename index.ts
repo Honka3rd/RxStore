@@ -28,11 +28,12 @@ class RxNStoreImpl<S extends BS>
     private cloneFunction?: CloneFunction<ReturnType<S[keyof S]>>,
     private cloneFunctionMap?: CloneFunctionMap<S>,
     comparator?: Comparator<any>,
-    comparatorMap?: ComparatorMap<any>,
+    comparatorMap?: ComparatorMap<any>
   ) {
     super(connector, comparator, comparatorMap);
     this.getClonedState = this.getClonedState.bind(this);
     this.getImmutableState = this.getImmutableState.bind(this);
+    this.getStates = this.getStates.bind(this);
   }
 
   getClonedState<K extends keyof S>(key: K) {
@@ -52,6 +53,10 @@ class RxNStoreImpl<S extends BS>
 
   getStateAll() {
     return this.connector.getAll();
+  }
+
+  getStates<KS extends keyof S>(keys: KS[]) {
+    return this.connector.getMultiple(keys);
   }
 
   getImmutableState<K extends keyof S>(key: K) {
@@ -110,7 +115,7 @@ class RxImStoreImpl<S extends IBS>
           return is(prev, next);
         }
         return prev === next;
-      },
+      }
     );
     const invalid = Object.values(connector.getDefaultAll()).find(
       (val) => val === undefined || (!isImmutable(val) && !isPremitive(val))
@@ -118,10 +123,16 @@ class RxImStoreImpl<S extends IBS>
     if (invalid) {
       throw Error(`${String(invalid)} is not an immutable Object`);
     }
+    this.getStateAll = this.getStateAll.bind(this);
+    this.getStates = this.getStates.bind(this);
   }
 
   getStateAll() {
-    return Map(this.connector.getAll()) as Map<keyof S, ReturnType<S[keyof S]>>
+    return Map(this.connector.getAll()) as Map<keyof S, ReturnType<S[keyof S]>>;
+  }
+
+  getStates<KS extends keyof S>(keys: KS[]) {
+    return Map(this.connector.getMultiple(keys)) as Map<KS, ReturnType<S[KS]>>;
   }
 }
 

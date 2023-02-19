@@ -34,7 +34,6 @@ export class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
     );
     this.setState = this.setState.bind(this);
     this.getState = this.getState.bind(this);
-    this.getStates = this.getStates.bind(this);
     this.reset = this.reset.bind(this);
     this.resetAll = this.resetAll.bind(this);
     this.resetMultiple = this.resetMultiple.bind(this);
@@ -88,10 +87,6 @@ export class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
     return this.connector.get(key);
   }
 
-  getStates<KS extends keyof S>(keys: KS[]) {
-    return this.connector.getMultiple(keys);
-  }
-
   setState<KS extends keyof S>(
     updated:
       | { [K in KS]: ReturnType<S[K]> }
@@ -110,7 +105,7 @@ export class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
       if (
         !this.objectCompare(
           nextVal,
-          this.getStates(Object.keys(nextVal)) as Partial<{
+          this.connector.getMultiple(Object.keys(nextVal)) as Partial<{
             [K in keyof S]: ReturnType<S[K]>;
           }>
         )
@@ -123,7 +118,7 @@ export class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
     if (
       !this.objectCompare(
         updated,
-        this.getStates(Object.keys(updated)) as {
+        this.connector.getMultiple(Object.keys(updated)) as {
           [K in KS]: ReturnType<S[K]>;
         }
       )

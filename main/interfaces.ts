@@ -139,9 +139,6 @@ export interface RxStore<S extends BS> {
   resetMultiple: <KS extends Array<keyof S>>(keys: KS) => this;
   resetAll: () => this;
   getState: <K extends keyof S>(key: K) => ReturnType<S[K]>;
-  getStates: <KS extends keyof S>(
-    keys: KS[]
-  ) => { [K in KS]: ReturnType<S[K]> };
   getDataSource: () => Observable<{ [K in keyof S]: ReturnType<S[K]> }>;
   createDispatch: <K extends keyof S, T, P = void>(params: {
     reducer: Reducer<T, P, S, K>;
@@ -170,6 +167,9 @@ export interface RxNStore<S extends BS> extends RxStore<S> {
         immutable: ReturnType<S[K]>;
       };
   getStateAll: () => { [K in keyof S]: ReturnType<S[K]> };
+  getStates: <KS extends keyof S>(
+    keys: KS[]
+  ) => { [K in KS]: ReturnType<S[K]> };
 }
 
 export type NRSConfig<S extends BS> = {
@@ -181,5 +181,6 @@ export type NRSConfig<S extends BS> = {
 };
 
 export interface RxImStore<IS extends IBS> extends RxStore<IS> {
-  getStateAll: () => Map<keyof IS, ReturnType<IS[keyof IS]>>
+  getStateAll: () => Map<keyof IS, ReturnType<IS[keyof IS]>>;
+  getStates: <KS extends keyof IS>(keys: KS[]) => Map<KS, ReturnType<IS[KS]>>;
 }
