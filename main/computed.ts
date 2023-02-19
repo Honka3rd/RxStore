@@ -21,14 +21,14 @@ export class ComputedImpl<R, S extends BS, KS extends keyof S>
     this.computation = computation;
     this.computed = this.computation(subscribable.getDefaultAll());
     this.get = this.get.bind(this);
-    this.start = this.start.bind(this);
+    this.observe = this.observe.bind(this);
   }
 
   get() {
     return this.computed;
   }
 
-  start(observer: (r: R) => void) {
+  observe(observer: (r: R) => void) {
     return this.subscribable.observeMultiple(
       this.keys,
       (states) => {

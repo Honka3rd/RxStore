@@ -7,7 +7,6 @@ import {
   Computation,
   Connectivity,
   Dispatch,
-  ReactiveConfig,
   Reducer,
   RxStore,
   Subscribable,
@@ -16,7 +15,7 @@ import { objectShallowCompareF } from "./util/objectShallowCompareFactory";
 import { shallowCompare } from "./util/shallowCompare";
 
 export class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
-  private comparator: Comparator<any> = shallowCompare;
+  comparator: Comparator<any> = shallowCompare;
   private objectCompare: <T extends { [k: string]: any }>(
     o1: T,
     o2: T
@@ -24,8 +23,7 @@ export class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
   constructor(
     private connector: Connectivity<S>,
     comparator?: Comparator<any>,
-    private comparatorMap?: ComparatorMap<any>,
-    config?: ReactiveConfig
+    private comparatorMap?: ComparatorMap<any>
   ) {
     if (comparator) {
       this.comparator = comparator;

@@ -29,9 +29,8 @@ class RxNStoreImpl<S extends BS>
     private cloneFunctionMap?: CloneFunctionMap<S>,
     comparator?: Comparator<any>,
     comparatorMap?: ComparatorMap<any>,
-    config?: ReactiveConfig
   ) {
-    super(connector, comparator, comparatorMap, config);
+    super(connector, comparator, comparatorMap);
     this.getClonedState = this.getClonedState.bind(this);
     this.getImmutableState = this.getImmutableState.bind(this);
   }
@@ -108,8 +107,6 @@ class RxImStoreImpl<S extends IBS>
         }
         return prev === next;
       },
-      undefined,
-      config
     );
     const invalid = Object.values(connector.getDefaultAll()).find(
       (val) => val === undefined || (!isImmutable(val) && !isPremitive(val))

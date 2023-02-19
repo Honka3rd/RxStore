@@ -119,10 +119,11 @@ export type Computation<R, S extends BS, KS extends keyof S> = (states: {
 export interface Computed<R, S extends BS, KS extends keyof S> {
   readonly computation: Computation<R, S, KS>;
   get: () => R | undefined;
-  start: (observer: (r: R) => void) => Unobserve;
+  observe: (observer: (r: R) => void) => Unobserve;
 }
 
 export interface RxStore<S extends BS> {
+  comparator: Comparator<any>;
   setState: <KS extends keyof S>(
     updated:
       | {
@@ -151,6 +152,8 @@ export interface RxStore<S extends BS> {
     computation: Computation<R, S, KS>;
     keys: KS[];
   }) => Computed<R, S, KS>;
+
+  // createDelta: <K extends keyof S>(params: DeltaParams<S, K>) => Delta<S, K>;
 }
 
 export interface RxNStore<S extends BS> extends RxStore<S> {
@@ -176,7 +179,7 @@ export type NRSConfig<S extends BS> = {
   cloneFunctionMap: CloneFunctionMap<S>;
   comparator: Comparator<any>;
   comparatorMap: ComparatorMap<S>;
-  config: ReactiveConfig
+  config: ReactiveConfig;
 };
 
 export interface RxImStore<IS extends IBS> extends RxStore<IS> {}
