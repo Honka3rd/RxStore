@@ -1,4 +1,4 @@
-import { Collection, fromJS, is, isImmutable } from "immutable";
+import { Collection, fromJS, is, isImmutable, Map } from "immutable";
 import { ConnectivityImpl } from "./main/connectivity";
 import {
   BS,
@@ -48,6 +48,10 @@ class RxNStoreImpl<S extends BS>
     }
 
     return shallowClone(this.getState(key));
+  }
+
+  getStateAll() {
+    return this.connector.getAll();
   }
 
   getImmutableState<K extends keyof S>(key: K) {
@@ -114,6 +118,10 @@ class RxImStoreImpl<S extends IBS>
     if (invalid) {
       throw Error(`${String(invalid)} is not an immutable Object`);
     }
+  }
+
+  getStateAll() {
+    return Map(this.connector.getAll()) as Map<keyof S, ReturnType<S[keyof S]>>
   }
 }
 

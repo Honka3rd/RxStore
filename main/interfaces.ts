@@ -1,5 +1,5 @@
 import { Observable } from "rxjs";
-import { Collection, Record, Seq, ValueObject } from "immutable";
+import { Collection, Record, Seq, ValueObject, Map } from "immutable";
 
 export type BS = {
   [k: string]: () => any;
@@ -142,7 +142,6 @@ export interface RxStore<S extends BS> {
   getStates: <KS extends keyof S>(
     keys: KS[]
   ) => { [K in KS]: ReturnType<S[K]> };
-  getStateAll: () => { [K in keyof S]: ReturnType<S[K]> };
   getDataSource: () => Observable<{ [K in keyof S]: ReturnType<S[K]> }>;
   createDispatch: <K extends keyof S, T, P = void>(params: {
     reducer: Reducer<T, P, S, K>;
@@ -152,8 +151,6 @@ export interface RxStore<S extends BS> {
     computation: Computation<R, S, KS>;
     keys: KS[];
   }) => Computed<R, S, KS>;
-
-  // createDelta: <K extends keyof S>(params: DeltaParams<S, K>) => Delta<S, K>;
 }
 
 export interface RxNStore<S extends BS> extends RxStore<S> {
@@ -172,6 +169,7 @@ export interface RxNStore<S extends BS> extends RxStore<S> {
         success: false;
         immutable: ReturnType<S[K]>;
       };
+  getStateAll: () => { [K in keyof S]: ReturnType<S[K]> };
 }
 
 export type NRSConfig<S extends BS> = {
@@ -182,4 +180,6 @@ export type NRSConfig<S extends BS> = {
   config: ReactiveConfig;
 };
 
-export interface RxImStore<IS extends IBS> extends RxStore<IS> {}
+export interface RxImStore<IS extends IBS> extends RxStore<IS> {
+  getStateAll: () => Map<keyof IS, ReturnType<IS[keyof IS]>>
+}

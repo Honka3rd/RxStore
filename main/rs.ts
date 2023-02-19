@@ -21,7 +21,7 @@ export class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
     o2: T
   ) => boolean;
   constructor(
-    private connector: Connectivity<S>,
+    protected connector: Connectivity<S>,
     comparator?: Comparator<any>,
     private comparatorMap?: ComparatorMap<any>
   ) {
@@ -34,7 +34,6 @@ export class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
     );
     this.setState = this.setState.bind(this);
     this.getState = this.getState.bind(this);
-    this.getStateAll = this.getStateAll.bind(this);
     this.getStates = this.getStates.bind(this);
     this.reset = this.reset.bind(this);
     this.resetAll = this.resetAll.bind(this);
@@ -93,10 +92,6 @@ export class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
     return this.connector.getMultiple(keys);
   }
 
-  getStateAll() {
-    return this.connector.getAll();
-  }
-
   setState<KS extends keyof S>(
     updated:
       | { [K in KS]: ReturnType<S[K]> }
@@ -107,7 +102,7 @@ export class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
         }>)
   ) {
     if (typeof updated === "function") {
-      const all = this.getStateAll();
+      const all = this.connector.getAll();
       const nextVal = updated(all);
       if (all === nextVal) {
         return this;
