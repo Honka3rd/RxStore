@@ -34,6 +34,9 @@ class RxNStoreImpl<S extends BS>
     this.getClonedState = this.getClonedState.bind(this);
     this.getImmutableState = this.getImmutableState.bind(this);
     this.getStates = this.getStates.bind(this);
+    this.getStateAll = this.getStateAll.bind(this);
+    this.getDefault = this.getDefault.bind(this);
+    this.getDefaultAll = this.getDefaultAll.bind(this);
   }
 
   getClonedState<K extends keyof S>(key: K) {
@@ -133,6 +136,8 @@ class RxImStoreImpl<S extends IBS>
     }
     this.getStateAll = this.getStateAll.bind(this);
     this.getStates = this.getStates.bind(this);
+    this.getDefaults = this.getDefaults.bind(this);
+    this.getDefaultAll = this.getDefaultAll.bind(this);
   }
 
   getStateAll() {

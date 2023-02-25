@@ -30,6 +30,9 @@ var RxNStoreImpl = /** @class */ (function (_super) {
         _this.getClonedState = _this.getClonedState.bind(_this);
         _this.getImmutableState = _this.getImmutableState.bind(_this);
         _this.getStates = _this.getStates.bind(_this);
+        _this.getStateAll = _this.getStateAll.bind(_this);
+        _this.getDefault = _this.getDefault.bind(_this);
+        _this.getDefaultAll = _this.getDefaultAll.bind(_this);
         return _this;
     }
     RxNStoreImpl.prototype.getClonedState = function (key) {
@@ -97,6 +100,8 @@ var RxImStoreImpl = /** @class */ (function (_super) {
         }
         _this.getStateAll = _this.getStateAll.bind(_this);
         _this.getStates = _this.getStates.bind(_this);
+        _this.getDefaults = _this.getDefaults.bind(_this);
+        _this.getDefaultAll = _this.getDefaultAll.bind(_this);
         return _this;
     }
     RxImStoreImpl.prototype.getStateAll = function () {

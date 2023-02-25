@@ -25,6 +25,7 @@ var RxStoreImpl = /** @class */ (function () {
         this.getDataSource = this.getDataSource.bind(this);
         this.createDispatch = this.createDispatch.bind(this);
         this.withComputation = this.withComputation.bind(this);
+        this.getDefault = this.getDefault.bind(this);
     }
     RxStoreImpl.prototype.observe = function (key, observer, comparator) {
         var _a;
