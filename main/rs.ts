@@ -88,6 +88,10 @@ export class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
     return this.connector.get(key);
   }
 
+  getDefault<K extends keyof S>(key: K) {
+    return this.connector.getDefault(key);
+  }
+
   setState<KS extends keyof S>(
     updated:
       | { [K in KS]: ReturnType<S[K]> }

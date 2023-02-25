@@ -102,6 +102,7 @@ export interface RxStore<S extends BS> {
         computation: Computation<R, S, KS>;
         keys: KS[];
     }) => Computed<R, S, KS>;
+    getDefault<K extends keyof S>(key: K): ReturnType<S[K]>;
 }
 export interface RxNStore<S extends BS> extends RxStore<S> {
     getClonedState: <K extends keyof S>(key: K) => ReturnType<S[K]>;
@@ -118,6 +119,12 @@ export interface RxNStore<S extends BS> extends RxStore<S> {
     getStates: <KS extends keyof S>(keys: KS[]) => {
         [K in KS]: ReturnType<S[K]>;
     };
+    getDefaults<KS extends (keyof S)[]>(keys: KS): {
+        [k in keyof S]: ReturnType<S[k]>;
+    };
+    getDefaultAll(): {
+        [k in keyof S]: ReturnType<S[k]>;
+    };
 }
 export type NRSConfig<S extends BS> = {
     cloneFunction: CloneFunction<any>;
@@ -129,5 +136,7 @@ export type NRSConfig<S extends BS> = {
 export interface RxImStore<IS extends IBS> extends RxStore<IS> {
     getStateAll: () => Map<keyof IS, ReturnType<IS[keyof IS]>>;
     getStates: <KS extends keyof IS>(keys: KS[]) => Map<KS, ReturnType<IS[KS]>>;
+    getDefaults<KS extends (keyof IS)[]>(keys: KS): Map<keyof IS, ReturnType<IS[keyof IS]>>;
+    getDefaultAll(): Map<keyof IS, ReturnType<IS[keyof IS]>>;
 }
 export {};

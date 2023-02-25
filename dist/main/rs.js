@@ -49,6 +49,9 @@ var RxStoreImpl = /** @class */ (function () {
     RxStoreImpl.prototype.getState = function (key) {
         return this.connector.get(key);
     };
+    RxStoreImpl.prototype.getDefault = function (key) {
+        return this.connector.getDefault(key);
+    };
     RxStoreImpl.prototype.setState = function (updated) {
         if (typeof updated === "function") {
             var all = this.connector.getAll();

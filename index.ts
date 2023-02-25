@@ -82,6 +82,14 @@ class RxNStoreImpl<S extends BS>
       immutable: origin,
     };
   }
+
+  getDefaults<KS extends (keyof S)[]>(keys: KS) {
+    return this.connector.getDefaults(keys);
+  }
+
+  getDefaultAll() {
+    return this.connector.getDefaultAll();
+  }
 }
 
 export function NRS<S extends BS>(
@@ -133,6 +141,20 @@ class RxImStoreImpl<S extends IBS>
 
   getStates<KS extends keyof S>(keys: KS[]) {
     return Map(this.connector.getMultiple(keys)) as Map<KS, ReturnType<S[KS]>>;
+  }
+
+  getDefaults<KS extends (keyof S)[]>(keys: KS) {
+    return Map(this.connector.getDefaults(keys)) as Map<
+      keyof S,
+      ReturnType<S[keyof S]>
+    >;
+  }
+
+  getDefaultAll() {
+    return Map(this.connector.getDefaultAll()) as Map<
+      keyof S,
+      ReturnType<S[keyof S]>
+    >;
   }
 }
 

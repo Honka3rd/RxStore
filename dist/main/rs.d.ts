@@ -24,6 +24,7 @@ export declare class RxStoreImpl<S extends BS> implements Subscribable<S>, RxSto
         [K in keyof S]: ReturnType<S[K]>;
     }) => boolean): () => void;
     getState<K extends keyof S>(key: K): ReturnType<S[K]>;
+    getDefault<K extends keyof S>(key: K): ReturnType<S[K]>;
     setState<KS extends keyof S>(updated: {
         [K in KS]: ReturnType<S[K]>;
     } | ((prevAll: {

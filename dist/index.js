@@ -69,6 +69,12 @@ var RxNStoreImpl = /** @class */ (function (_super) {
             immutable: origin,
         };
     };
+    RxNStoreImpl.prototype.getDefaults = function (keys) {
+        return this.connector.getDefaults(keys);
+    };
+    RxNStoreImpl.prototype.getDefaultAll = function () {
+        return this.connector.getDefaultAll();
+    };
     return RxNStoreImpl;
 }(rs_1.RxStoreImpl));
 function NRS(initiator, _a) {
@@ -98,6 +104,12 @@ var RxImStoreImpl = /** @class */ (function (_super) {
     };
     RxImStoreImpl.prototype.getStates = function (keys) {
         return (0, immutable_1.Map)(this.connector.getMultiple(keys));
+    };
+    RxImStoreImpl.prototype.getDefaults = function (keys) {
+        return (0, immutable_1.Map)(this.connector.getDefaults(keys));
+    };
+    RxImStoreImpl.prototype.getDefaultAll = function () {
+        return (0, immutable_1.Map)(this.connector.getDefaultAll());
     };
     return RxImStoreImpl;
 }(rs_1.RxStoreImpl));

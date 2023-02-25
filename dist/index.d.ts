@@ -15,12 +15,16 @@ declare class RxNStoreImpl<S extends BS> extends RxStoreImpl<S> implements Subsc
         readonly success: true;
         readonly immutable: Collection<keyof ReturnType<S[K]>, ReturnType<S[K]>[keyof ReturnType<S[K]>]>;
     };
+    getDefaults<KS extends (keyof S)[]>(keys: KS): { [k in keyof S]: ReturnType<S[k]>; };
+    getDefaultAll(): { [k in keyof S]: ReturnType<S[k]>; };
 }
 export declare function NRS<S extends BS>(initiator: S, { cloneFunction, cloneFunctionMap, comparator, comparatorMap, config, }?: Partial<NRSConfig<S>>): RxNStoreImpl<S>;
 declare class RxImStoreImpl<S extends IBS> extends RxStoreImpl<S> implements Subscribable<S>, RxImStore<S> {
     constructor(connector: Connectivity<S>, config?: ReactiveConfig);
     getStateAll(): Map<keyof S, ReturnType<S[keyof S]>>;
     getStates<KS extends keyof S>(keys: KS[]): Map<KS, ReturnType<S[KS]>>;
+    getDefaults<KS extends (keyof S)[]>(keys: KS): Map<keyof S, ReturnType<S[keyof S]>>;
+    getDefaultAll(): Map<keyof S, ReturnType<S[keyof S]>>;
 }
 export declare function IRS<S extends IBS>(initiator: S, config?: ReactiveConfig): RxImStoreImpl<S>;
 export {};
