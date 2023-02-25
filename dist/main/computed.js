@@ -7,13 +7,14 @@ var ComputedImpl = /** @class */ (function () {
         this.keys = keys;
         this.comparator = comparator;
         this.computation = computation;
+        this.computed = this.computation(subscribable.getDefaultAll());
         this.get = this.get.bind(this);
-        this.start = this.start.bind(this);
+        this.observe = this.observe.bind(this);
     }
     ComputedImpl.prototype.get = function () {
         return this.computed;
     };
-    ComputedImpl.prototype.start = function (observer) {
+    ComputedImpl.prototype.observe = function (observer) {
         var _this = this;
         return this.subscribable.observeMultiple(this.keys, function (states) {
             var value = _this.computation(states);

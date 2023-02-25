@@ -19,36 +19,8 @@ exports.IRS = exports.NRS = void 0;
 var immutable_1 = require("immutable");
 var connectivity_1 = require("./main/connectivity");
 var rs_1 = require("./main/rs");
-var shallowClone = function (input) {
-    if (!input) {
-        return input;
-    }
-    if (typeof input !== "object") {
-        return input;
-    }
-    if (input instanceof Date) {
-        return new Date(input);
-    }
-    if (input instanceof RegExp) {
-        return new RegExp(input);
-    }
-    if (input instanceof Set) {
-        return new Set(input);
-    }
-    if (input instanceof Map) {
-        return new Map(input);
-    }
-    var ownKeys = Object.getOwnPropertyNames(input);
-    var copied = Object.create(Object.getPrototypeOf(input), Object.getOwnPropertyDescriptors(input));
-    ownKeys.forEach(function (k) {
-        copied[k] = input[k];
-    });
-    return copied;
-};
-var isPremitive = function (val) {
-    return !((typeof val === "object" && val !== null) ||
-        typeof val === "function");
-};
+var isPremitive_1 = require("./main/util/isPremitive");
+var shallowClone_1 = require("./main/util/shallowClone");
 var RxNStoreImpl = /** @class */ (function (_super) {
     __extends(RxNStoreImpl, _super);
     function RxNStoreImpl(connector, cloneFunction, cloneFunctionMap, comparator, comparatorMap) {
@@ -57,6 +29,7 @@ var RxNStoreImpl = /** @class */ (function (_super) {
         _this.cloneFunctionMap = cloneFunctionMap;
         _this.getClonedState = _this.getClonedState.bind(_this);
         _this.getImmutableState = _this.getImmutableState.bind(_this);
+        _this.getStates = _this.getStates.bind(_this);
         return _this;
     }
     RxNStoreImpl.prototype.getClonedState = function (key) {
@@ -68,11 +41,17 @@ var RxNStoreImpl = /** @class */ (function (_super) {
         if (cloneFunction) {
             return cloneFunction(this.getState(key));
         }
-        return shallowClone(this.getState(key));
+        return (0, shallowClone_1.shallowClone)(this.getState(key));
+    };
+    RxNStoreImpl.prototype.getStateAll = function () {
+        return this.connector.getAll();
+    };
+    RxNStoreImpl.prototype.getStates = function (keys) {
+        return this.connector.getMultiple(keys);
     };
     RxNStoreImpl.prototype.getImmutableState = function (key) {
         var origin = this.getState(key);
-        if (isPremitive(origin)) {
+        if ((0, isPremitive_1.isPremitive)(origin)) {
             return {
                 success: true,
                 immutable: origin,
@@ -93,28 +72,36 @@ var RxNStoreImpl = /** @class */ (function (_super) {
     return RxNStoreImpl;
 }(rs_1.RxStoreImpl));
 function NRS(initiator, _a) {
-    var _b = _a === void 0 ? {} : _a, cloneFunction = _b.cloneFunction, cloneFunctionMap = _b.cloneFunctionMap, comparator = _b.comparator, comparatorMap = _b.comparatorMap;
-    return new RxNStoreImpl(new connectivity_1.ConnectivityImpl(initiator), cloneFunction, cloneFunctionMap, comparator, comparatorMap);
+    var _b = _a === void 0 ? {} : _a, cloneFunction = _b.cloneFunction, cloneFunctionMap = _b.cloneFunctionMap, comparator = _b.comparator, comparatorMap = _b.comparatorMap, config = _b.config;
+    return new RxNStoreImpl(new connectivity_1.ConnectivityImpl(initiator, config), cloneFunction, cloneFunctionMap, comparator, comparatorMap);
 }
 exports.NRS = NRS;
 var RxImStoreImpl = /** @class */ (function (_super) {
     __extends(RxImStoreImpl, _super);
-    function RxImStoreImpl(connector) {
+    function RxImStoreImpl(connector, config) {
         var _this = _super.call(this, connector, function (prev, next) {
             if ((0, immutable_1.isImmutable)(prev) && (0, immutable_1.isImmutable)(next)) {
                 return (0, immutable_1.is)(prev, next);
             }
             return prev === next;
         }) || this;
-        var invalid = Object.values(connector.getDefaultAll()).find(function (val) { return val === undefined || (!(0, immutable_1.isImmutable)(val) && !isPremitive(val)); });
+        var invalid = Object.values(connector.getDefaultAll()).find(function (val) { return val === undefined || (!(0, immutable_1.isImmutable)(val) && !(0, isPremitive_1.isPremitive)(val)); });
         if (invalid) {
             throw Error("".concat(String(invalid), " is not an immutable Object"));
         }
+        _this.getStateAll = _this.getStateAll.bind(_this);
+        _this.getStates = _this.getStates.bind(_this);
         return _this;
     }
+    RxImStoreImpl.prototype.getStateAll = function () {
+        return (0, immutable_1.Map)(this.connector.getAll());
+    };
+    RxImStoreImpl.prototype.getStates = function (keys) {
+        return (0, immutable_1.Map)(this.connector.getMultiple(keys));
+    };
     return RxImStoreImpl;
 }(rs_1.RxStoreImpl));
-function IRS(initiator) {
-    return new RxImStoreImpl(new connectivity_1.ConnectivityImpl(initiator));
+function IRS(initiator, config) {
+    return new RxImStoreImpl(new connectivity_1.ConnectivityImpl(initiator, config));
 }
 exports.IRS = IRS;

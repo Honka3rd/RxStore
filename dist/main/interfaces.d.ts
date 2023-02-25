@@ -1,5 +1,5 @@
 import { Observable } from "rxjs";
-import { Collection, Record, Seq, ValueObject } from "immutable";
+import { Collection, Record, Seq, ValueObject, Map } from "immutable";
 export type BS = {
     [k: string]: () => any;
 };
@@ -18,6 +18,8 @@ export type ComparatorMap<S extends BS> = Partial<{
 export interface Reactive<S extends BS> {
     get: <K extends keyof S>(key: K) => ReturnType<S[K]>;
     reset: <K extends keyof S>(key: K) => void;
+    resetMultiple: <KS extends Array<keyof S>>(keys: KS) => void;
+    resetAll: () => void;
     set: <KS extends keyof S>(updated: {
         [K in KS]: ReturnType<S[K]>;
     }) => void;
@@ -53,6 +55,10 @@ export type Subscribable<S extends BS> = {
         [K in keyof S]: ReturnType<S[K]>;
     }>) => Unobserve;
 };
+export type ReactiveConfig = {
+    fireOnCreate: boolean;
+    schedule: "sync" | "async";
+};
 export interface Connectivity<S extends BS> extends Reactive<S>, Subscribable<S> {
 }
 export type Action<P, T> = {
@@ -70,9 +76,10 @@ export type Computation<R, S extends BS, KS extends keyof S> = (states: {
 export interface Computed<R, S extends BS, KS extends keyof S> {
     readonly computation: Computation<R, S, KS>;
     get: () => R | undefined;
-    start: (observer: (r: R) => void) => Unobserve;
+    observe: (observer: (r: R) => void) => Unobserve;
 }
 export interface RxStore<S extends BS> {
+    comparator: Comparator<any>;
     setState: <KS extends keyof S>(updated: {
         [K in KS]: ReturnType<S[K]>;
     } | (<KS extends keyof S>(prevAll: {
@@ -81,14 +88,9 @@ export interface RxStore<S extends BS> {
         [K in keyof S]: ReturnType<S[K]>;
     }>)) => this;
     reset: <K extends keyof S>(key: K) => this;
-    resetAll: <KS extends keyof S>(keys?: KS[]) => this;
+    resetMultiple: <KS extends Array<keyof S>>(keys: KS) => this;
+    resetAll: () => this;
     getState: <K extends keyof S>(key: K) => ReturnType<S[K]>;
-    getStates: <KS extends keyof S>(keys: KS[]) => {
-        [K in KS]: ReturnType<S[K]>;
-    };
-    getStateAll: () => {
-        [K in keyof S]: ReturnType<S[K]>;
-    };
     getDataSource: () => Observable<{
         [K in keyof S]: ReturnType<S[K]>;
     }>;
@@ -96,7 +98,7 @@ export interface RxStore<S extends BS> {
         reducer: Reducer<T, P, S, K>;
         key: K;
     }) => Dispatch<P, T>;
-    createComputed: <R, KS extends keyof S>(params: {
+    withComputation: <R, KS extends keyof S>(params: {
         computation: Computation<R, S, KS>;
         keys: KS[];
     }) => Computed<R, S, KS>;
@@ -110,13 +112,22 @@ export interface RxNStore<S extends BS> extends RxStore<S> {
         success: false;
         immutable: ReturnType<S[K]>;
     };
+    getStateAll: () => {
+        [K in keyof S]: ReturnType<S[K]>;
+    };
+    getStates: <KS extends keyof S>(keys: KS[]) => {
+        [K in KS]: ReturnType<S[K]>;
+    };
 }
 export type NRSConfig<S extends BS> = {
     cloneFunction: CloneFunction<any>;
     cloneFunctionMap: CloneFunctionMap<S>;
     comparator: Comparator<any>;
     comparatorMap: ComparatorMap<S>;
+    config: ReactiveConfig;
 };
 export interface RxImStore<IS extends IBS> extends RxStore<IS> {
+    getStateAll: () => Map<keyof IS, ReturnType<IS[keyof IS]>>;
+    getStates: <KS extends keyof IS>(keys: KS[]) => Map<KS, ReturnType<IS[KS]>>;
 }
 export {};

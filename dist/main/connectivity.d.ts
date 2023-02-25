@@ -1,7 +1,7 @@
-import { BS, Comparator, Connectivity } from "./interfaces";
+import { BS, Comparator, Connectivity, ReactiveConfig } from "./interfaces";
 import { ReactiveImpl } from "./reactive";
 export declare class ConnectivityImpl<S extends BS> extends ReactiveImpl<S> implements Connectivity<S> {
-    constructor(initiator: S);
+    constructor(initiator: S, config?: ReactiveConfig);
     observe<K extends keyof S>(key: K, observer: (result: ReturnType<S[K]>) => void, comparator?: Comparator<ReturnType<S[K]>>): () => void;
     observeMultiple<KS extends keyof S>(keys: KS[], observer: (result: {
         [K in KS]: ReturnType<S[K]>;

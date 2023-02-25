@@ -31,8 +31,9 @@ var rxjs_1 = require("rxjs");
 var reactive_1 = require("./reactive");
 var ConnectivityImpl = /** @class */ (function (_super) {
     __extends(ConnectivityImpl, _super);
-    function ConnectivityImpl(initiator) {
-        return _super.call(this, initiator) || this;
+    function ConnectivityImpl(initiator, config) {
+        if (config === void 0) { config = { schedule: "sync", fireOnCreate: false }; }
+        return _super.call(this, initiator, config) || this;
     }
     ConnectivityImpl.prototype.observe = function (key, observer, comparator) {
         var subscription = this.source()
