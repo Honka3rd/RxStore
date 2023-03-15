@@ -12,10 +12,9 @@ export class DispatcherImpl<S extends BS, K extends keyof S, T, P>
   }
 
   dispatch(action: Action<P, T>) {
-    this.store.setState(
-      Object.create({
-        [this.key]: this.reducer(this.store.getState(this.key), action),
-      })
-    );
+    const mutation = {
+      [this.key]: this.reducer(this.store.getState(this.key), action),
+    } as {};
+    this.store.setState(mutation);
   }
 }
