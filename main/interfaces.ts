@@ -2,7 +2,7 @@ import { Observable } from "rxjs";
 import { Collection, Record, Seq, ValueObject, Map } from "immutable";
 
 export type BS = {
-  [k: string]: () => any;
+  [k: string]: <S extends BS>(r: Reactive<S>) => any;
 };
 
 export type ImmutableBase =

@@ -66,9 +66,9 @@ class RxNStoreImpl<S extends BS>
     const origin = this.getState(key);
     if (isPremitive(origin)) {
       return {
-        success: true,
+        success: false,
         immutable: origin,
-      };
+      } as const;
     }
     const immutified = fromJS(origin) as Collection<
       keyof ReturnType<S[K]>,
@@ -83,7 +83,7 @@ class RxNStoreImpl<S extends BS>
     return {
       success: false,
       immutable: origin,
-    };
+    } as const;
   }
 
   getDefaults<KS extends (keyof S)[]>(keys: KS) {

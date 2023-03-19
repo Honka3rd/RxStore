@@ -18,7 +18,7 @@ export class ReactiveImpl<S extends BS> implements Reactive<S> {
   private init({ fireOnCreate, schedule }: ReactiveConfig) {
     const keys = Object.keys(this.initiator) as Array<keyof S>;
     const initData = keys.reduce((acc, next) => {
-      acc[next] = this.initiator[next]();
+      acc[next] = this.initiator[next](this);
       return acc;
     }, {} as { [K in keyof S]: ReturnType<S[K]> });
 
@@ -48,14 +48,14 @@ export class ReactiveImpl<S extends BS> implements Reactive<S> {
 
   reset<K extends keyof S>(key: K) {
     const data = this.dataSource.value;
-    data[key] = this.initiator[key]();
+    data[key] = this.initiator[key](this);
     this.dataSource.next(data);
   }
 
   resetMultiple<KS extends (keyof S)[]>(keys: KS) {
     const data = this.dataSource.value;
     keys.forEach((key) => {
-      data[key] = this.initiator[key]();
+      data[key] = this.initiator[key](this);
     });
     this.dataSource.next(data);
   }
@@ -63,7 +63,7 @@ export class ReactiveImpl<S extends BS> implements Reactive<S> {
   resetAll() {
     const data = this.dataSource.value;
     this.getAllKeys().forEach((key) => {
-      data[key] = this.initiator[key]();
+      data[key] = this.initiator[key](this);
     });
     this.dataSource.next(data);
   }
@@ -72,8 +72,8 @@ export class ReactiveImpl<S extends BS> implements Reactive<S> {
     return this.dataSource.asObservable();
   }
 
-  getDefault<K extends keyof S>(key: K) {
-    return this.initiator[key]();
+  getDefault<K extends keyof S>(key: K):ReturnType<S[K]> {
+    return this.initiator[key](this);
   }
 
   getDefaults<KS extends keyof S>(keys: KS[]) {
