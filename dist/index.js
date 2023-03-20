@@ -56,7 +56,7 @@ var RxNStoreImpl = /** @class */ (function (_super) {
         var origin = this.getState(key);
         if ((0, isPremitive_1.isPremitive)(origin)) {
             return {
-                success: true,
+                success: false,
                 immutable: origin,
             };
         }

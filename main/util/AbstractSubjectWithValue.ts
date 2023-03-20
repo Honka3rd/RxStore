@@ -1,4 +1,4 @@
-import { Observable, Observer, Subject } from "rxjs";
+import { Observable, Observer, Subject, Subscription } from "rxjs";
 
 export abstract class AbstractSubjectWithValue<T, S extends Subject<T>> {
   protected source: S;
@@ -12,9 +12,7 @@ export abstract class AbstractSubjectWithValue<T, S extends Subject<T>> {
     this.source.next(this.value);
   }
 
-  subscribe(observer: Observer<T>) {
-    return this.source.subscribe(observer);
-  }
+  abstract subscribe(observer: Observer<T>): Subscription;
 
   abstract asObservable(): Observable<T>;
 }

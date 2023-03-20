@@ -88,8 +88,8 @@ export type Subscribable<S extends BS> = {
 };
 
 export type ReactiveConfig = {
-  fireOnCreate: boolean;
-  schedule: "sync" | "async";
+  fireOnCreate?: boolean;
+  schedule?: "sync" | "async";
 };
 
 export interface Connectivity<S extends BS>

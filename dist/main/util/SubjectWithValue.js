@@ -25,6 +25,9 @@ var SubjectWithValue = /** @class */ (function (_super) {
         _this.value = value;
         return _this;
     }
+    SubjectWithValue.prototype.subscribe = function (observer) {
+        return this.source.subscribe(observer);
+    };
     SubjectWithValue.prototype.asObservable = function () {
         return this.source.asObservable();
     };

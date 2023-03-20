@@ -21,12 +21,15 @@ var AbstractSubjectWithValue_1 = require("./AbstractSubjectWithValue");
 var AsyncSubjectWithValue = /** @class */ (function (_super) {
     __extends(AsyncSubjectWithValue, _super);
     function AsyncSubjectWithValue(value) {
-        var _this = _super.call(this, value, new rxjs_1.AsyncSubject()) || this;
+        var _this = _super.call(this, value, new rxjs_1.Subject()) || this;
         _this.value = value;
         return _this;
     }
+    AsyncSubjectWithValue.prototype.subscribe = function (observer) {
+        return this.source.pipe((0, rxjs_1.debounceTime)(0)).subscribe(observer);
+    };
     AsyncSubjectWithValue.prototype.asObservable = function () {
-        return this.source.asObservable();
+        return this.source.asObservable().pipe((0, rxjs_1.debounceTime)(0));
     };
     return AsyncSubjectWithValue;
 }(AbstractSubjectWithValue_1.AbstractSubjectWithValue));

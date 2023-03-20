@@ -1,7 +1,7 @@
 import { Observable } from "rxjs";
 import { Collection, Record, Seq, ValueObject, Map } from "immutable";
 export type BS = {
-    [k: string]: () => any;
+    [k: string]: <S extends BS>(r: Reactive<S>) => any;
 };
 export type ImmutableBase = Collection<any, any> | Collection.Indexed<any> | Collection.Keyed<any, any> | Collection.Set<any> | Record.Factory<any> | Seq<any, any> | Seq.Indexed<any> | Seq.Keyed<any, any> | Seq.Set<any> | ValueObject | number | string | null | bigint | boolean;
 export interface IBS extends BS {
@@ -56,8 +56,8 @@ export type Subscribable<S extends BS> = {
     }>) => Unobserve;
 };
 export type ReactiveConfig = {
-    fireOnCreate: boolean;
-    schedule: "sync" | "async";
+    fireOnCreate?: boolean;
+    schedule?: "sync" | "async";
 };
 export interface Connectivity<S extends BS> extends Reactive<S>, Subscribable<S> {
 }

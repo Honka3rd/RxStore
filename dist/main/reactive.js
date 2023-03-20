@@ -33,7 +33,7 @@ var ReactiveImpl = /** @class */ (function () {
         var fireOnCreate = _a.fireOnCreate, schedule = _a.schedule;
         var keys = Object.keys(this.initiator);
         var initData = keys.reduce(function (acc, next) {
-            acc[next] = _this.initiator[next]();
+            acc[next] = _this.initiator[next](_this);
             return acc;
         }, {});
         if (schedule === "async") {
@@ -58,14 +58,14 @@ var ReactiveImpl = /** @class */ (function () {
     };
     ReactiveImpl.prototype.reset = function (key) {
         var data = this.dataSource.value;
-        data[key] = this.initiator[key]();
+        data[key] = this.initiator[key](this);
         this.dataSource.next(data);
     };
     ReactiveImpl.prototype.resetMultiple = function (keys) {
         var _this = this;
         var data = this.dataSource.value;
         keys.forEach(function (key) {
-            data[key] = _this.initiator[key]();
+            data[key] = _this.initiator[key](_this);
         });
         this.dataSource.next(data);
     };
@@ -73,7 +73,7 @@ var ReactiveImpl = /** @class */ (function () {
         var _this = this;
         var data = this.dataSource.value;
         this.getAllKeys().forEach(function (key) {
-            data[key] = _this.initiator[key]();
+            data[key] = _this.initiator[key](_this);
         });
         this.dataSource.next(data);
     };
@@ -81,7 +81,7 @@ var ReactiveImpl = /** @class */ (function () {
         return this.dataSource.asObservable();
     };
     ReactiveImpl.prototype.getDefault = function (key) {
-        return this.initiator[key]();
+        return this.initiator[key](this);
     };
     ReactiveImpl.prototype.getDefaults = function (keys) {
         var _this = this;

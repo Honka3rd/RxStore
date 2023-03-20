@@ -10,9 +10,6 @@ var AbstractSubjectWithValue = /** @class */ (function () {
         this.value = val;
         this.source.next(this.value);
     };
-    AbstractSubjectWithValue.prototype.subscribe = function (observer) {
-        return this.source.subscribe(observer);
-    };
     return AbstractSubjectWithValue;
 }());
 exports.AbstractSubjectWithValue = AbstractSubjectWithValue;
