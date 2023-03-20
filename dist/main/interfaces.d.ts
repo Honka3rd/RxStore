@@ -75,7 +75,7 @@ export type AsyncDispatchConfig<S extends BS, K extends keyof S> = {
     errorFallback?: () => ReturnType<S[K]>;
     always?: () => void;
 };
-export type AsyncDispatch<P, T, S extends BS, K extends keyof S> = (action: Action<P, T>, config: AsyncDispatchConfig<S, K>) => Promise<void>;
+export type AsyncDispatch<P, T, S extends BS, K extends keyof S> = (action: Action<P, T>, config?: AsyncDispatchConfig<S, K>) => Promise<void>;
 export interface Dispatcher<P, T> {
     dispatch: Dispatch<P, T>;
 }

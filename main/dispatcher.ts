@@ -42,8 +42,9 @@ export class AsyncDispatcherImpl<S extends BS, K extends keyof S, T, P>
 
   async dispatch(
     action: Action<P, T>,
-    { start, fail, errorFallback, always, success }: AsyncDispatchConfig<S, K>
+    config: AsyncDispatchConfig<S, K> = {}
   ) {
+    const { start, fail, errorFallback, always, success } = config;
     const asyncResult = this.reducer(this.store.getState(this.key), action);
     start?.();
     try {

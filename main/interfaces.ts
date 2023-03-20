@@ -123,7 +123,7 @@ export type AsyncDispatchConfig<S extends BS, K extends keyof S> = {
 
 export type AsyncDispatch<P, T, S extends BS, K extends keyof S> = (
   action: Action<P, T>,
-  config: AsyncDispatchConfig<S, K>
+  config?: AsyncDispatchConfig<S, K>
 ) => Promise<void>;
 
 export interface Dispatcher<P, T> {

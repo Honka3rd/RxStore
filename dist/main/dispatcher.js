@@ -62,40 +62,41 @@ var AsyncDispatcherImpl = /** @class */ (function () {
         this.key = key;
         this.dispatch = this.dispatch.bind(this);
     }
-    AsyncDispatcherImpl.prototype.dispatch = function (action, _a) {
-        var start = _a.start, fail = _a.fail, errorFallback = _a.errorFallback, always = _a.always, success = _a.success;
+    AsyncDispatcherImpl.prototype.dispatch = function (action, config) {
+        if (config === void 0) { config = {}; }
         return __awaiter(this, void 0, void 0, function () {
-            var asyncResult, async$, result, mutation, error_1;
-            var _b, _c;
-            return __generator(this, function (_d) {
-                switch (_d.label) {
+            var start, fail, errorFallback, always, success, asyncResult, async$, result, mutation, error_1;
+            var _a, _b;
+            return __generator(this, function (_c) {
+                switch (_c.label) {
                     case 0:
+                        start = config.start, fail = config.fail, errorFallback = config.errorFallback, always = config.always, success = config.success;
                         asyncResult = this.reducer(this.store.getState(this.key), action);
                         start === null || start === void 0 ? void 0 : start();
-                        _d.label = 1;
+                        _c.label = 1;
                     case 1:
-                        _d.trys.push([1, 3, 4, 5]);
+                        _c.trys.push([1, 3, 4, 5]);
                         async$ = asyncResult instanceof rxjs_1.Observable
                             ? (0, rxjs_1.lastValueFrom)(asyncResult)
                             : asyncResult;
                         return [4 /*yield*/, async$];
                     case 2:
-                        result = _d.sent();
+                        result = _c.sent();
                         success === null || success === void 0 ? void 0 : success(result);
-                        mutation = (_b = {},
-                            _b[this.key] = result,
-                            _b);
+                        mutation = (_a = {},
+                            _a[this.key] = result,
+                            _a);
                         this.store.setState(mutation);
                         return [3 /*break*/, 5];
                     case 3:
-                        error_1 = _d.sent();
+                        error_1 = _c.sent();
                         fail === null || fail === void 0 ? void 0 : fail(error_1);
                         if (!errorFallback) {
                             return [2 /*return*/];
                         }
-                        this.store.setState((_c = {},
-                            _c[this.key] = errorFallback(),
-                            _c));
+                        this.store.setState((_b = {},
+                            _b[this.key] = errorFallback(),
+                            _b));
                         return [3 /*break*/, 5];
                     case 4:
                         always === null || always === void 0 ? void 0 : always();

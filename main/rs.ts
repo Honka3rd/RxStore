@@ -45,7 +45,9 @@ export class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
     this.observe = this.observe.bind(this);
     this.getDataSource = this.getDataSource.bind(this);
     this.createDispatch = this.createDispatch.bind(this);
+    this.createAsyncDispatch = this.createAsyncDispatch.bind(this);
     this.withComputation = this.withComputation.bind(this);
+    this.withAsyncComputation = this.withAsyncComputation.bind(this);
     this.getDefault = this.getDefault.bind(this);
   }
 
