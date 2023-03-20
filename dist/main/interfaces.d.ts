@@ -66,17 +66,53 @@ export type Action<P, T> = {
     payload: P;
 };
 export type Reducer<P, T, S extends BS, K extends keyof S> = (state: ReturnType<S[K]>, action: Action<T, P>) => ReturnType<S[K]>;
+export type AnsycReducer<P, T, S extends BS, K extends keyof S> = (state: ReturnType<S[K]>, action: Action<T, P>) => Promise<ReturnType<S[K]>> | Observable<ReturnType<S[K]>>;
 export type Dispatch<P, T> = (action: Action<P, T>) => void;
+export type AsyncDispatchConfig<S extends BS, K extends keyof S> = {
+    start?: () => void;
+    success?: (r: ReturnType<S[K]>) => void;
+    fail?: (error: unknown) => void;
+    errorFallback?: () => ReturnType<S[K]>;
+    always?: () => void;
+};
+export type AsyncDispatch<P, T, S extends BS, K extends keyof S> = (action: Action<P, T>, config: AsyncDispatchConfig<S, K>) => Promise<void>;
 export interface Dispatcher<P, T> {
     dispatch: Dispatch<P, T>;
+}
+export interface AsyncDispatcher<P, T, S extends BS, K extends keyof S> {
+    dispatch: AsyncDispatch<P, T, S, K>;
 }
 export type Computation<R, S extends BS, KS extends keyof S> = (states: {
     [K in KS]: ReturnType<S[K]>;
 }) => R;
+export type ComputationAsync<R, S extends BS, KS extends keyof S> = (states: {
+    [K in KS]: ReturnType<S[K]>;
+}) => Promise<R> | Observable<R>;
 export interface Computed<R, S extends BS, KS extends keyof S> {
     readonly computation: Computation<R, S, KS>;
     get: () => R | undefined;
     observe: (observer: (r: R) => void) => Unobserve;
+}
+export type AsyncResponse<R> = {
+    success: true;
+    result: R;
+} | {
+    success: false;
+    cause: any;
+};
+export declare enum AsyncStates {
+    FULLFILLED = 0,
+    ERROR = 1,
+    PENDING = 2
+}
+export type AsyncGet<R> = {
+    state: AsyncStates;
+    value?: R;
+};
+export interface ComputedAsync<R, S extends BS, KS extends keyof S> {
+    readonly computation: ComputationAsync<R, S, KS>;
+    get: () => AsyncGet<R>;
+    observe: (observer: (r: AsyncResponse<R>) => void) => Unobserve;
 }
 export interface RxStore<S extends BS> {
     comparator: Comparator<any>;
@@ -98,10 +134,18 @@ export interface RxStore<S extends BS> {
         reducer: Reducer<T, P, S, K>;
         key: K;
     }) => Dispatch<P, T>;
+    createAsyncDispatch: <K extends keyof S, T, P = void>(params: {
+        reducer: AnsycReducer<T, P, S, K>;
+        key: K;
+    }) => AsyncDispatch<P, T, S, K>;
     withComputation: <R, KS extends keyof S>(params: {
         computation: Computation<R, S, KS>;
         keys: KS[];
     }) => Computed<R, S, KS>;
+    withAsyncComputation: <R, KS extends keyof S>(params: {
+        computation: ComputationAsync<R, S, KS>;
+        keys: KS[];
+    }) => ComputedAsync<R, S, KS>;
     getDefault<K extends keyof S>(key: K): ReturnType<S[K]>;
 }
 export interface RxNStore<S extends BS> extends RxStore<S> {

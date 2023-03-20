@@ -89,8 +89,15 @@ var RxStoreImpl = /** @class */ (function () {
         return new dispatcher_1.DispatcherImpl(params.reducer, this, params.key)
             .dispatch;
     };
+    RxStoreImpl.prototype.createAsyncDispatch = function (params) {
+        return new dispatcher_1.AsyncDispatcherImpl(params.reducer, this, params.key)
+            .dispatch;
+    };
     RxStoreImpl.prototype.withComputation = function (params) {
         return new computed_1.ComputedImpl(params.computation, this.connector, params.keys, this.comparator);
+    };
+    RxStoreImpl.prototype.withAsyncComputation = function (params) {
+        return new computed_1.ComputedAsyncImpl(params.computation, this.connector, params.keys);
     };
     return RxStoreImpl;
 }());
