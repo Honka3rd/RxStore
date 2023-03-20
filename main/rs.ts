@@ -1,10 +1,13 @@
-import { ComputedImpl } from "./computed";
-import { DispatcherImpl } from "./dispatcher";
+import { ComputedAsyncImpl, ComputedImpl } from "./computed";
+import { AsyncDispatcherImpl, DispatcherImpl } from "./dispatcher";
 import {
+  AnsycReducer,
+  AsyncDispatch,
   BS,
   Comparator,
   ComparatorMap,
   Computation,
+  ComputationAsync,
   Connectivity,
   Dispatch,
   Reducer,
@@ -161,6 +164,14 @@ export class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
       .dispatch;
   }
 
+  createAsyncDispatch<K extends keyof S, T, P = void>(params: {
+    reducer: AnsycReducer<T, P, S, K>;
+    key: K;
+  }): AsyncDispatch<P, T, S, K> {
+    return new AsyncDispatcherImpl<S, K, T, P>(params.reducer, this, params.key)
+      .dispatch;
+  }
+
   withComputation<R, KS extends keyof S>(params: {
     computation: Computation<R, S, KS>;
     keys: KS[];
@@ -170,6 +181,17 @@ export class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
       this.connector,
       params.keys,
       this.comparator
+    );
+  }
+
+  withAsyncComputation<R, KS extends keyof S>(params: {
+    computation: ComputationAsync<R, S, KS>;
+    keys: KS[];
+  }) {
+    return new ComputedAsyncImpl(
+      params.computation,
+      this.connector,
+      params.keys
     );
   }
 }

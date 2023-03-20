@@ -1,4 +1,14 @@
-import { Action, BS, Dispatcher, Reducer, RxStore } from "./interfaces";
+import { lastValueFrom, Observable } from "rxjs";
+import {
+  Action,
+  AnsycReducer,
+  AsyncDispatchConfig,
+  AsyncDispatcher,
+  BS,
+  Dispatcher,
+  Reducer,
+  RxStore,
+} from "./interfaces";
 
 export class DispatcherImpl<S extends BS, K extends keyof S, T, P>
   implements Dispatcher<P, T>
@@ -16,5 +26,47 @@ export class DispatcherImpl<S extends BS, K extends keyof S, T, P>
       [this.key]: this.reducer(this.store.getState(this.key), action),
     } as {};
     this.store.setState(mutation);
+  }
+}
+
+export class AsyncDispatcherImpl<S extends BS, K extends keyof S, T, P>
+  implements AsyncDispatcher<P, T, S, K>
+{
+  constructor(
+    private reducer: AnsycReducer<T, P, S, K>,
+    private store: RxStore<S>,
+    private key: K
+  ) {
+    this.dispatch = this.dispatch.bind(this);
+  }
+
+  async dispatch(
+    action: Action<P, T>,
+    { start, fail, errorFallback, always, success }: AsyncDispatchConfig<S, K>
+  ) {
+    const asyncResult = this.reducer(this.store.getState(this.key), action);
+    start?.();
+    try {
+      const async$ =
+        asyncResult instanceof Observable
+          ? lastValueFrom(asyncResult)
+          : asyncResult;
+      const result = await async$;
+      success?.(result);
+      const mutation = {
+        [this.key]: result,
+      } as {};
+      this.store.setState(mutation);
+    } catch (error) {
+      fail?.(error);
+      if (!errorFallback) {
+        return;
+      }
+      this.store.setState({
+        [this.key]: errorFallback(),
+      } as {});
+    } finally {
+      always?.();
+    }
   }
 }
