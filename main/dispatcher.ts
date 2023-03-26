@@ -8,7 +8,7 @@ import {
   Dispatcher,
   Reducer,
   RxStore,
-} from "./interfaces";
+} from "rx-store-types";
 
 export class DispatcherImpl<S extends BS, K extends keyof S, T, P>
   implements Dispatcher<P, T>

@@ -14,7 +14,7 @@ import {
   IBS,
   ImmutableBase,
   ReactiveConfig,
-} from "./main/interfaces";
+} from "rx-store-types";
 import { RxStoreImpl } from "./main/rs";
 import { isPremitive } from "./main/util/isPremitive";
 import { shallowClone } from "./main/util/shallowClone";

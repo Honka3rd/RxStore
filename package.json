@@ -12,7 +12,12 @@
     "type": "git",
     "url": "git+https://github.com/Honka3rd/RxStore.git"
   },
-  "keywords": ["State Management", "Rxjs", "Typescript", "Immutable"],
+  "keywords": [
+    "State Management",
+    "Rxjs",
+    "Typescript",
+    "Immutable"
+  ],
   "author": "",
   "license": "ISC",
   "bugs": {
@@ -21,6 +26,7 @@
   "homepage": "https://github.com/Honka3rd/RxStore#readme",
   "dependencies": {
     "immutable": "^4.2.2",
+    "rx-store-types": "^1.0.0",
     "rxjs": "^7.8.0",
     "typescript": "5.0.2"
   }

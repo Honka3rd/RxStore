@@ -9,7 +9,7 @@ import {
   ComputedAsync,
   AsyncResponse,
   AsyncStates,
-} from "./interfaces";
+} from "rx-store-types";
 
 export class ComputedImpl<R, S extends BS, KS extends keyof S>
   implements Computed<R, S, KS>

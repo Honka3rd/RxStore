@@ -13,7 +13,7 @@ import {
   Reducer,
   RxStore,
   Subscribable,
-} from "./interfaces";
+} from "rx-store-types";
 import { objectShallowCompareF } from "./util/objectShallowCompareFactory";
 import { shallowCompare } from "./util/shallowCompare";
 

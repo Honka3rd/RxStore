@@ -1,5 +1,5 @@
 import { BehaviorSubject } from "rxjs";
-import { BS, Reactive, ReactiveConfig } from "./interfaces";
+import { BS, Reactive, ReactiveConfig } from "rx-store-types";
 import { AsyncBeheviorSubjectWithValue } from "./util/AsyncBeheviorSubjectWithValue";
 import { AsyncSubjectWithValue } from "./util/AsyncSubjectWithValue";
 import { SubjectWithValue } from "./util/SubjectWithValue";
@@ -48,14 +48,14 @@ export class ReactiveImpl<S extends BS> implements Reactive<S> {
 
   reset<K extends keyof S>(key: K) {
     const data = this.dataSource.value;
-    data[key] = this.initiator[key](this);
+    data[key] = this.initiator[key]();
     this.dataSource.next(data);
   }
 
   resetMultiple<KS extends (keyof S)[]>(keys: KS) {
     const data = this.dataSource.value;
     keys.forEach((key) => {
-      data[key] = this.initiator[key](this);
+      data[key] = this.initiator[key]();
     });
     this.dataSource.next(data);
   }
@@ -63,7 +63,7 @@ export class ReactiveImpl<S extends BS> implements Reactive<S> {
   resetAll() {
     const data = this.dataSource.value;
     this.getAllKeys().forEach((key) => {
-      data[key] = this.initiator[key](this);
+      data[key] = this.initiator[key]();
     });
     this.dataSource.next(data);
   }
@@ -73,7 +73,7 @@ export class ReactiveImpl<S extends BS> implements Reactive<S> {
   }
 
   getDefault<K extends keyof S>(key: K):ReturnType<S[K]> {
-    return this.initiator[key](this);
+    return this.initiator[key]();
   }
 
   getDefaults<KS extends keyof S>(keys: KS[]) {
