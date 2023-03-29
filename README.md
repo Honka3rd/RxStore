@@ -97,6 +97,7 @@ setTimeout(() => {
 
 ***create a dispatch function for stored data***
 
+example:
 ```javascript
 const { observe, createDispatch } = NRS({
   complex: () => ({
@@ -130,6 +131,7 @@ const changeHeight = () => {
 const clearHeight = () => {
     dispatchHeight({
         type: "clear",
+        // payload is optional
     })
 }
 
