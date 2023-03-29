@@ -1,9 +1,6 @@
-import { ComputedAsyncImpl, ComputedImpl } from "./computed";
-import { AsyncDispatcherImpl, DispatcherImpl } from "./dispatcher";
 import {
   AnsycReducer,
-  AsyncDispatch,
-  BS,
+  AsyncDispatch, BS,
   Comparator,
   ComparatorMap,
   Computation,
@@ -12,8 +9,10 @@ import {
   Dispatch,
   Reducer,
   RxStore,
-  Subscribable,
+  Subscribable
 } from "rx-store-types";
+import { ComputedAsyncImpl, ComputedImpl } from "./computed";
+import { AsyncDispatcherImpl, DispatcherImpl } from "./dispatcher";
 import { objectShallowCompareF } from "./util/objectShallowCompareFactory";
 import { shallowCompare } from "./util/shallowCompare";
 
