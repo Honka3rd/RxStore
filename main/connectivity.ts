@@ -1,5 +1,5 @@
 import { distinctUntilChanged, map } from "rxjs";
-import { BS, Comparator, Connectivity, ReactiveConfig } from "./interfaces";
+import { BS, Comparator, Connectivity, ReactiveConfig } from "rx-store-types";
 import { ReactiveImpl } from "./reactive";
 
 export class ConnectivityImpl<S extends BS>
