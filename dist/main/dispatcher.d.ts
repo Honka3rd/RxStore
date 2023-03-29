@@ -1,4 +1,4 @@
-import { Action, AnsycReducer, AsyncDispatchConfig, AsyncDispatcher, BS, Dispatcher, Reducer, RxStore } from "./interfaces";
+import { Action, AnsycReducer, AsyncDispatchConfig, AsyncDispatcher, BS, Dispatcher, Reducer, RxStore } from "rx-store-types";
 export declare class DispatcherImpl<S extends BS, K extends keyof S, T, P> implements Dispatcher<P, T> {
     private reducer;
     private store;

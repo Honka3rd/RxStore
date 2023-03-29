@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ComputedAsyncImpl = exports.ComputedImpl = void 0;
 var rxjs_1 = require("rxjs");
-var interfaces_1 = require("./interfaces");
+var rx_store_types_1 = require("rx-store-types");
 var ComputedImpl = /** @class */ (function () {
     function ComputedImpl(computation, subscribable, keys, comparator) {
         this.subscribable = subscribable;
@@ -31,7 +31,7 @@ var ComputedAsyncImpl = /** @class */ (function () {
     function ComputedAsyncImpl(computation, subscribable, keys) {
         this.subscribable = subscribable;
         this.keys = keys;
-        this.state = interfaces_1.AsyncStates.PENDING;
+        this.state = rx_store_types_1.AsyncStates.PENDING;
         this.computation = computation;
         this.get = this.get.bind(this);
         this.observe = this.observe.bind(this);
@@ -47,7 +47,7 @@ var ComputedAsyncImpl = /** @class */ (function () {
         var subscription = this.subscribable
             .source()
             .pipe((0, rxjs_1.tap)(function () {
-            _this.state = interfaces_1.AsyncStates.PENDING;
+            _this.state = rx_store_types_1.AsyncStates.PENDING;
         }), (0, rxjs_1.switchMap)(function (states) {
             var asyncReturn = _this.computation(states);
             var async$ = asyncReturn instanceof Promise ? (0, rxjs_1.from)(asyncReturn) : asyncReturn;
@@ -64,10 +64,10 @@ var ComputedAsyncImpl = /** @class */ (function () {
             }), (0, rxjs_1.tap)(function (_a) {
                 var success = _a.success;
                 if (success) {
-                    _this.state = interfaces_1.AsyncStates.FULLFILLED;
+                    _this.state = rx_store_types_1.AsyncStates.FULLFILLED;
                     return;
                 }
-                _this.state = interfaces_1.AsyncStates.ERROR;
+                _this.state = rx_store_types_1.AsyncStates.ERROR;
             }));
         }))
             .subscribe(observer);

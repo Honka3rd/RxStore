@@ -1,5 +1,5 @@
 import { ComputedAsyncImpl, ComputedImpl } from "./computed";
-import { AnsycReducer, AsyncDispatch, BS, Comparator, Computation, ComputationAsync, Connectivity, Dispatch, Reducer, RxStore, Subscribable } from "./interfaces";
+import { AnsycReducer, AsyncDispatch, BS, Comparator, Computation, ComputationAsync, Connectivity, Dispatch, Reducer, RxStore, Subscribable } from "rx-store-types";
 export declare class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
     protected connector: Connectivity<S>;
     private comparatorMap?;

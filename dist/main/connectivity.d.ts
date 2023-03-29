@@ -1,4 +1,4 @@
-import { BS, Comparator, Connectivity, ReactiveConfig } from "./interfaces";
+import { BS, Comparator, Connectivity, ReactiveConfig } from "rx-store-types";
 import { ReactiveImpl } from "./reactive";
 export declare class ConnectivityImpl<S extends BS> extends ReactiveImpl<S> implements Connectivity<S> {
     constructor(initiator: S, config?: ReactiveConfig);

@@ -1,4 +1,4 @@
-import { ComparatorMap } from "../interfaces";
+import { ComparatorMap } from "rx-store-types";
 
 export const objectShallowCompareF =
   <T extends { [k: string]: any }>(

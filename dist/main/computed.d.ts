@@ -1,4 +1,4 @@
-import { Computed, Computation, BS, Connectivity, Comparator, ComputationAsync, ComputedAsync, AsyncResponse, AsyncStates } from "./interfaces";
+import { Computed, Computation, BS, Connectivity, Comparator, ComputationAsync, ComputedAsync, AsyncResponse, AsyncStates } from "rx-store-types";
 export declare class ComputedImpl<R, S extends BS, KS extends keyof S> implements Computed<R, S, KS> {
     private subscribable;
     private keys;

@@ -48,7 +48,12 @@ var DispatcherImpl = /** @class */ (function () {
     DispatcherImpl.prototype.dispatch = function (action) {
         var _a;
         var mutation = (_a = {},
-            _a[this.key] = this.reducer(this.store.getState(this.key), action),
+            _a[this.key] = this.reducer(this.store.getState(this.key), {
+                type: action.type,
+                payload: action.payload !== undefined
+                    ? action.payload
+                    : this.store.getDefault(this.key),
+            }),
             _a);
         this.store.setState(mutation);
     };

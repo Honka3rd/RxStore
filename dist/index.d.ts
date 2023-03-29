@@ -1,5 +1,5 @@
 import { Collection, Map } from "immutable";
-import { BS, CloneFunction, Comparator, ComparatorMap, Connectivity, NRSConfig, RxNStore, RxImStore, Subscribable, IBS, ReactiveConfig } from "./main/interfaces";
+import { BS, CloneFunction, Comparator, ComparatorMap, Connectivity, NRSConfig, RxNStore, RxImStore, Subscribable, IBS, ReactiveConfig } from "rx-store-types";
 import { RxStoreImpl } from "./main/rs";
 declare class RxNStoreImpl<S extends BS> extends RxStoreImpl<S> implements Subscribable<S>, RxNStore<S> {
     private cloneFunction?;

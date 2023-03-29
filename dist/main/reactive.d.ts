@@ -1,4 +1,4 @@
-import { BS, Reactive, ReactiveConfig } from "./interfaces";
+import { BS, Reactive, ReactiveConfig } from "rx-store-types";
 export declare class ReactiveImpl<S extends BS> implements Reactive<S> {
     private initiator;
     private dataSource;

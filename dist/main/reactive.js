@@ -58,14 +58,14 @@ var ReactiveImpl = /** @class */ (function () {
     };
     ReactiveImpl.prototype.reset = function (key) {
         var data = this.dataSource.value;
-        data[key] = this.initiator[key](this);
+        data[key] = this.initiator[key]();
         this.dataSource.next(data);
     };
     ReactiveImpl.prototype.resetMultiple = function (keys) {
         var _this = this;
         var data = this.dataSource.value;
         keys.forEach(function (key) {
-            data[key] = _this.initiator[key](_this);
+            data[key] = _this.initiator[key]();
         });
         this.dataSource.next(data);
     };
@@ -73,7 +73,7 @@ var ReactiveImpl = /** @class */ (function () {
         var _this = this;
         var data = this.dataSource.value;
         this.getAllKeys().forEach(function (key) {
-            data[key] = _this.initiator[key](_this);
+            data[key] = _this.initiator[key]();
         });
         this.dataSource.next(data);
     };
@@ -81,7 +81,7 @@ var ReactiveImpl = /** @class */ (function () {
         return this.dataSource.asObservable();
     };
     ReactiveImpl.prototype.getDefault = function (key) {
-        return this.initiator[key](this);
+        return this.initiator[key]();
     };
     ReactiveImpl.prototype.getDefaults = function (keys) {
         var _this = this;
