@@ -26,7 +26,7 @@
   "homepage": "https://github.com/Honka3rd/RxStore#readme",
   "dependencies": {
     "immutable": "^4.2.2",
-    "rx-store-types": "^1.0.0",
+    "rx-store-types": "^1.1.1",
     "rxjs": "^7.8.0",
     "typescript": "5.0.2"
   }

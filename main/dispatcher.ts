@@ -23,7 +23,13 @@ export class DispatcherImpl<S extends BS, K extends keyof S, T, P>
 
   dispatch(action: Action<P, T>) {
     const mutation = {
-      [this.key]: this.reducer(this.store.getState(this.key), action),
+      [this.key]: this.reducer(this.store.getState(this.key), {
+        type: action.type,
+        payload:
+          action.payload !== undefined
+            ? action.payload
+            : this.store.getDefault(this.key),
+      }),
     } as {};
     this.store.setState(mutation);
   }
@@ -40,10 +46,7 @@ export class AsyncDispatcherImpl<S extends BS, K extends keyof S, T, P>
     this.dispatch = this.dispatch.bind(this);
   }
 
-  async dispatch(
-    action: Action<P, T>,
-    config: AsyncDispatchConfig<S, K> = {}
-  ) {
+  async dispatch(action: Action<P, T>, config: AsyncDispatchConfig<S, K> = {}) {
     const { start, fail, errorFallback, always, success } = config;
     const asyncResult = this.reducer(this.store.getState(this.key), action);
     start?.();
