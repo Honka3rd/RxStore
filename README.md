@@ -123,7 +123,7 @@ const { setState } = NRS({
 });
 
 setTimeout(() => {
-  setState({ height: 42 }); // hight wil be observed after 5 seconds
+  setState({ height: 42 }); // "height" wil be observed after 5 seconds
   setState((prevState) => {
     if(!prevState.complex) {
       return { complex: { uid:"114514", name:"1g1g1g1g" } } // the mutation will be observed
