@@ -3,7 +3,7 @@
 An Rxjs based Type-safe state management tool
 (JavaScript Environment Independent)
 
-## install
+## Install
 
 npm install rx-store-core
 
