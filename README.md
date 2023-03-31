@@ -107,7 +107,32 @@ setTimeout(() => {
 }, 5000);
 ```
 
-**_create a dispatch function for stored data_**
+**_Only way to change stored data_**
+You can pass a function or a Object into setState function as argument
+
+example:
+
+```javascript
+const { setState } = NRS({
+  complex: () => ({
+    uid: "",
+    name: "",
+  }),
+  height: () => 0,
+});
+
+setTimeout(() => {
+  setState({ height: 42 });
+  setState((prevState) => {
+    if(!prevState.complex) {
+      return { complex: { uid:"114514", name:"1g1g1g1g" } }
+    }
+    return prevState;
+  })
+}, 5000);
+```
+
+**_Create a dispatch function for stored data_**
 
 example:
 
@@ -162,13 +187,13 @@ observe("height", (h) => {
 })
 ```
 
-**_create a asynchronous dispatch function for stored data_**
+**_Create a asynchronous dispatch function for stored data_**
 
 sometimes we might need a asynchronous process happened after dispatching data, we can return a Promise or Observable in defined Reducer
 
 the second argument is a config object containing:
 
-***start?: () => void***
+***Start?: () => void***
 fire on start
 
 ***success?: (r: ReturnType<S[K]>) => void***
@@ -210,7 +235,7 @@ const dispatchHeight = createAsyncDispatch<"height", "clear" | "auto", number>({
 // we can observe "height" like usual
 ```
 
-**_clone and compare_**
+**_Clone and compare_**
 sometimes we need some special clone or/and compare function
 we can define them in the factory function
 
@@ -266,7 +291,7 @@ setTimeout(() => {
 observe("complex", console.log);
 ```
 
-**_observable computation_**
+**_Observable computation_**
 
 sometimes we want a reduced or mapped value from our defined data in store
 
@@ -295,7 +320,7 @@ setTimeout(() => {
 setTimeout(unobserve, 2000);
 ```
 
-**_observable asynchronous computation_**
+**_Observable asynchronous computation_**
 
 sometimes the computation might not immediately computed, we can return an Observable object instead.
 
@@ -317,7 +342,7 @@ compute.observe((h) => {
 
 setState({ height: 42 });
 ```
-**_schedule and fire on create_**
+**_Schedule and fire on create_**
 
 schedule mode: sync or async, default to async, if set to async, only the last value of current call stack can be observed
 
