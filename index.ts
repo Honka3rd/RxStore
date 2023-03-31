@@ -16,7 +16,7 @@ import {
   ReactiveConfig,
 } from "rx-store-types";
 import { RxStoreImpl } from "./main/rs";
-import { isPremitive } from "./main/util/isPremitive";
+import { isPrimitive } from "./main/util/isPrimitive";
 import { shallowClone } from "./main/util/shallowClone";
 
 class RxNStoreImpl<S extends BS>
@@ -64,7 +64,7 @@ class RxNStoreImpl<S extends BS>
 
   getImmutableState<K extends keyof S>(key: K) {
     const origin = this.getState(key);
-    if (isPremitive(origin)) {
+    if (isPrimitive(origin)) {
       return {
         success: false,
         immutable: origin,
@@ -129,7 +129,7 @@ class RxImStoreImpl<S extends IBS>
       }
     );
     const invalid = Object.values(connector.getDefaultAll()).find(
-      (val) => val === undefined || (!isImmutable(val) && !isPremitive(val))
+      (val) => val === undefined || (!isImmutable(val) && !isPrimitive(val))
     );
     if (invalid) {
       throw Error(`${String(invalid)} is not an immutable Object`);

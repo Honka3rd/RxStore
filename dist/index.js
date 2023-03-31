@@ -19,7 +19,7 @@ exports.IRS = exports.NRS = void 0;
 var immutable_1 = require("immutable");
 var connectivity_1 = require("./main/connectivity");
 var rs_1 = require("./main/rs");
-var isPremitive_1 = require("./main/util/isPremitive");
+var isPrimitive_1 = require("./main/util/isPrimitive");
 var shallowClone_1 = require("./main/util/shallowClone");
 var RxNStoreImpl = /** @class */ (function (_super) {
     __extends(RxNStoreImpl, _super);
@@ -54,7 +54,7 @@ var RxNStoreImpl = /** @class */ (function (_super) {
     };
     RxNStoreImpl.prototype.getImmutableState = function (key) {
         var origin = this.getState(key);
-        if ((0, isPremitive_1.isPremitive)(origin)) {
+        if ((0, isPrimitive_1.isPrimitive)(origin)) {
             return {
                 success: false,
                 immutable: origin,
@@ -94,7 +94,7 @@ var RxImStoreImpl = /** @class */ (function (_super) {
             }
             return prev === next;
         }) || this;
-        var invalid = Object.values(connector.getDefaultAll()).find(function (val) { return val === undefined || (!(0, immutable_1.isImmutable)(val) && !(0, isPremitive_1.isPremitive)(val)); });
+        var invalid = Object.values(connector.getDefaultAll()).find(function (val) { return val === undefined || (!(0, immutable_1.isImmutable)(val) && !(0, isPrimitive_1.isPrimitive)(val)); });
         if (invalid) {
             throw Error("".concat(String(invalid), " is not an immutable Object"));
         }

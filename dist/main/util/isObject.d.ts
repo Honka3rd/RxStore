@@ -1,1 +1,1 @@
-export declare const isObject: (value: unknown) => boolean;
+export declare const isObject: (value: unknown) => value is object;

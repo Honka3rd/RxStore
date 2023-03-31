@@ -55,10 +55,10 @@ export class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
     observer: (result: ReturnType<S[K]>) => void,
     comparator?: (prev: ReturnType<S[K]>, next: ReturnType<S[K]>) => boolean
   ) {
-    const presetComparetor = this.comparatorMap?.[key]
+    const presetComparator = this.comparatorMap?.[key]
       ? this.comparatorMap[key]
       : this.comparator;
-    const compareFn = comparator ? comparator : presetComparetor;
+    const compareFn = comparator ? comparator : presetComparator;
     return this.connector.observe(key, observer, compareFn);
   }
 

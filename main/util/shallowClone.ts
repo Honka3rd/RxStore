@@ -1,9 +1,11 @@
+import { isPrimitive } from "./isPrimitive";
+
 export const shallowClone = <T>(input: T) => {
   if (!input) {
     return input;
   }
 
-  if (typeof input !== "object") {
+  if (isPrimitive(input)) {
     return input;
   }
 

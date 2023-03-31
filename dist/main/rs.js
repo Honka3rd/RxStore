@@ -31,10 +31,10 @@ var RxStoreImpl = /** @class */ (function () {
     }
     RxStoreImpl.prototype.observe = function (key, observer, comparator) {
         var _a;
-        var presetComparetor = ((_a = this.comparatorMap) === null || _a === void 0 ? void 0 : _a[key])
+        var presetComparator = ((_a = this.comparatorMap) === null || _a === void 0 ? void 0 : _a[key])
             ? this.comparatorMap[key]
             : this.comparator;
-        var compareFn = comparator ? comparator : presetComparetor;
+        var compareFn = comparator ? comparator : presetComparator;
         return this.connector.observe(key, observer, compareFn);
     };
     RxStoreImpl.prototype.observeMultiple = function (keys, observer, comparator) {

@@ -9,11 +9,11 @@ declare class RxNStoreImpl<S extends BS> extends RxStoreImpl<S> implements Subsc
     getStateAll(): { [K in keyof S]: ReturnType<S[K]>; };
     getStates<KS extends keyof S>(keys: KS[]): { [K in KS]: ReturnType<S[K]>; };
     getImmutableState<K extends keyof S>(key: K): {
-        readonly success: false;
-        readonly immutable: ReturnType<S[K]>;
-    } | {
         readonly success: true;
         readonly immutable: Collection<keyof ReturnType<S[K]>, ReturnType<S[K]>[keyof ReturnType<S[K]>]>;
+    } | {
+        readonly success: false;
+        readonly immutable: ReturnType<S[K]>;
     };
     getDefaults<KS extends (keyof S)[]>(keys: KS): { [k in keyof S]: ReturnType<S[k]>; };
     getDefaultAll(): { [k in keyof S]: ReturnType<S[k]>; };

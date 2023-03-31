@@ -27,7 +27,7 @@ const {
   createDispatch, // create a dispatch function with a Reducer, to handle complex Reactive data management
   getState, // get a non-reactive data, it is mutable, please try to avoid to use this
   getClonedState, // get a cloned non-reactive data, by default, it is shallow cloned, you can define a custom clone function when create a NRS
-  getDataSource, // get a RxJS Observable object, you can add any midwares into its pipe function
+  getDataSource, // get a RxJS Observable object, you can add any mid wares into its pipe function
   getImmutableState, // try to parse a normal JS object into a Immutable object
   getStateAll, // get a mutable object containing all stored data, avoid to use it
   getStates, // get multiple stored non-reactive data, avoid to use it
@@ -67,11 +67,11 @@ const { observe, observeMultiple, observeAll, getDefault } = NRS({
 example 1:
 
 ```javascript
-const unboserve = observe("complex", (r) => {
+const unObserve = observe("complex", (r) => {
   console.log(r);
 });
 
-setTimeout(unboserve, 5000); // stop observe after about 5 seconds
+setTimeout(unObserve, 5000); // stop observe after about 5 seconds
 ```
 
 example 2 (React):
@@ -80,30 +80,30 @@ example 2 (React):
 const [complex, setComplex] = useState(getDefault("complex"));
 
 useEffect(() => {
-  const unboserve = observe("complex", (c) => {
+  const unObserve = observe("complex", (c) => {
     setComplex(c);
   });
-  return unboserve; // stop observe on unmount
+  return unObserve; // stop observe on unmount
 }, []);
 ```
 
 example 3 (observe multiple and all):
 
 ```javascript
-const unboserveMultiple = observeMultiple(
+const unObserveMultiple = observeMultiple(
   ["height", "complex"],
   ({ height, complex }) => {
     console.log(height, complex);
   }
 );
 
-const unboserveAll = observeAll(({ height, complex }) => {
+const unObserveAll = observeAll(({ height, complex }) => {
   console.log(height, complex);
 });
 
 setTimeout(() => {
-  unboserveMultiple();
-  unboserveAll();
+  unObserveMultiple();
+  unObserveAll();
 }, 5000);
 ```
 
@@ -128,7 +128,7 @@ setTimeout(() => {
     if(!prevState.complex) {
       return { complex: { uid:"114514", name:"1g1g1g1g" } } // the mutation will be observed
     }
-    return prevState; // nochange will be observed
+    return prevState; // no change will be observed
   })
 }, 5000);
 ```
@@ -240,7 +240,7 @@ const dispatchHeight = createAsyncDispatch<"height", "clear" | "auto", number>({
 sometimes we need some special clone or/and compare function
 we can define them in the factory function
 
-clone function is for achieveing immutability
+clone function is for achieving immutability
 compare function is for reducing unnecessary observation
 
 example
@@ -278,7 +278,7 @@ console.log(c1 === getClonedState("complex"));
 
 const g1 = getState("groups");
 // should equal with a default clone function, inner objects are not cloned
-// shoud not equal given a specific deepclone function
+// should not equal given a specific deep clone function
 console.log(g1[0] === getClonedState("groups")[0]);
 
 setTimeout(() => {
@@ -288,7 +288,7 @@ setTimeout(() => {
   setState({ complex: { ...getDefault("complex") } });
 }, 2000);
 
-// only log one time, even the "complex" object changed, because the compare criterion is the "complex.id, see the compare function defination"
+// only log one time, even the "complex" object changed, because the compare criterion is the "complex.id, see the compare function definition"
 observe("complex", console.log);
 ```
 
@@ -309,16 +309,16 @@ const compute = withComputation({
   },
 });
 
-const unobserve = compute.observe((h) => {
+const unObserve = compute.observe((h) => {
   console.log(h);
-  // shoud log 84 after 1 second
+  // should log 84 after 1 second
 });
 
 setTimeout(() => {
   setState({ height: 42 });
 }, 1000);
 
-setTimeout(unobserve, 2000);
+setTimeout(unObserve, 2000);
 ```
 
 **_Observable asynchronous computation_**
@@ -338,7 +338,7 @@ const compute = withAsyncComputation({
 
 compute.observe((h) => {
   console.log(h);
-  // shoud log 84 after 1 second
+  // should log 84 after 1 second
 });
 
 setState({ height: 42 });
@@ -365,7 +365,7 @@ const { withComputation } = NRS({
 
 ## Use a Immutable Reactive Store (IRS):
 
-Only [Immutable data structure](https://immutable-js.com/) or Premitive data type accepted by IRS
+Only [Immutable data structure](https://immutable-js.com/) or Primitive data type accepted by IRS
 
 Immutable follows Deep-copy-on-write pattern and has its own equals method to compare, so we do not need to provide clone and compare function
 

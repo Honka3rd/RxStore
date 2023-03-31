@@ -1,11 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.shallowClone = void 0;
+var isPrimitive_1 = require("./isPrimitive");
 var shallowClone = function (input) {
     if (!input) {
         return input;
     }
-    if (typeof input !== "object") {
+    if ((0, isPrimitive_1.isPrimitive)(input)) {
         return input;
     }
     if (input instanceof Date) {
