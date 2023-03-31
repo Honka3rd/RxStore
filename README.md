@@ -9,13 +9,13 @@ npm install rx-store-core
 
 ## Use a Normal Reactive Store (NRS):
 
-**import**
+**Import**
 
 ```javascript
 import { NRS } from "rx-store-core";
 ```
 
-**overview**
+**Overview**
 
 ```javascript
 const {
@@ -108,6 +108,7 @@ setTimeout(() => {
 ```
 
 **_Only way to change stored data_**
+
 You can pass a function or a Object into setState function as argument
 
 example:
@@ -122,12 +123,12 @@ const { setState } = NRS({
 });
 
 setTimeout(() => {
-  setState({ height: 42 });
+  setState({ height: 42 }); // hight wil be observed after 5 seconds
   setState((prevState) => {
     if(!prevState.complex) {
-      return { complex: { uid:"114514", name:"1g1g1g1g" } }
+      return { complex: { uid:"114514", name:"1g1g1g1g" } } // the mutation will be observed
     }
-    return prevState;
+    return prevState; // nochange will be observed
   })
 }, 5000);
 ```
