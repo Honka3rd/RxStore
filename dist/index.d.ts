@@ -4,7 +4,7 @@ import { RxStoreImpl } from "./main/rs";
 declare class RxNStoreImpl<S extends BS> extends RxStoreImpl<S> implements Subscribable<S>, RxNStore<S> {
     private cloneFunction?;
     private cloneFunctionMap?;
-    constructor(connector: Connectivity<S>, cloneFunction?: CloneFunction<ReturnType<S[keyof S]>> | undefined, cloneFunctionMap?: Partial<{ [K in keyof S]: CloneFunction<ReturnType<S[K]>>; }> | undefined, comparator?: Comparator<any>, comparatorMap?: ComparatorMap<any>);
+    constructor(connector: Connectivity<S>, cloneFunction?: CloneFunction<ReturnType<S[keyof S]>> | undefined, cloneFunctionMap?: Partial<{ [K in keyof S]: CloneFunction<ReturnType<S[K]>>; }> | undefined, comparator?: Comparator<ReturnType<S[keyof S]>>, comparatorMap?: ComparatorMap<S>);
     getClonedState<K extends keyof S>(key: K): ReturnType<S[K]>;
     getStateAll(): { [K in keyof S]: ReturnType<S[K]>; };
     getStates<KS extends keyof S>(keys: KS[]): { [K in KS]: ReturnType<S[K]>; };

@@ -5,9 +5,7 @@ export declare class RxStoreImpl<S extends BS> implements Subscribable<S>, RxSto
     private comparatorMap?;
     comparator: Comparator<any>;
     private objectCompare;
-    constructor(connector: Connectivity<S>, comparator?: Comparator<any>, comparatorMap?: Partial<{
-        [x: string]: Comparator<any>;
-    }> | undefined);
+    constructor(connector: Connectivity<S>, comparator?: Comparator<ReturnType<S[keyof S]>>, comparatorMap?: Partial<{ [K in keyof S]: Comparator<ReturnType<S[K]>>; }> | undefined);
     observe<K extends keyof S>(key: K, observer: (result: ReturnType<S[K]>) => void, comparator?: (prev: ReturnType<S[K]>, next: ReturnType<S[K]>) => boolean): () => void;
     observeMultiple<KS extends keyof S>(keys: KS[], observer: (result: {
         [K in KS]: ReturnType<S[K]>;
@@ -25,6 +23,7 @@ export declare class RxStoreImpl<S extends BS> implements Subscribable<S>, RxSto
     }) => boolean): () => void;
     getState<K extends keyof S>(key: K): ReturnType<S[K]>;
     getDefault<K extends keyof S>(key: K): ReturnType<S[K]>;
+    getComparatorMap(): Partial<{ [K in keyof S]: Comparator<ReturnType<S[K]>>; }> | undefined;
     setState<KS extends keyof S>(updated: {
         [K in KS]: ReturnType<S[K]>;
     } | ((prevAll: {

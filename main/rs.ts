@@ -24,8 +24,8 @@ export class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
   ) => boolean;
   constructor(
     protected connector: Connectivity<S>,
-    comparator?: Comparator<any>,
-    private comparatorMap?: ComparatorMap<any>
+    comparator?: Comparator<ReturnType<S[keyof S]>>,
+    private comparatorMap?: ComparatorMap<S>
   ) {
     if (comparator) {
       this.comparator = comparator;
@@ -34,6 +34,9 @@ export class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
       this.comparator,
       this.comparatorMap
     );
+    if(comparatorMap) {
+      Object.freeze(comparatorMap);
+    }
     this.setState = this.setState.bind(this);
     this.getState = this.getState.bind(this);
     this.reset = this.reset.bind(this);
@@ -95,6 +98,10 @@ export class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
 
   getDefault<K extends keyof S>(key: K) {
     return this.connector.getDefault(key);
+  }
+
+  getComparatorMap() {
+    return this.comparatorMap;
   }
 
   setState<KS extends keyof S>(

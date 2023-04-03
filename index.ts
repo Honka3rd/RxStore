@@ -27,8 +27,8 @@ class RxNStoreImpl<S extends BS>
     connector: Connectivity<S>,
     private cloneFunction?: CloneFunction<ReturnType<S[keyof S]>>,
     private cloneFunctionMap?: CloneFunctionMap<S>,
-    comparator?: Comparator<any>,
-    comparatorMap?: ComparatorMap<any>
+    comparator?: Comparator<ReturnType<S[keyof S]>>,
+    comparatorMap?: ComparatorMap<S>
   ) {
     super(connector, comparator, comparatorMap);
     this.getClonedState = this.getClonedState.bind(this);

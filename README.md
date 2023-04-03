@@ -52,6 +52,7 @@ const {
 **_Define stored data_**
 
 example:
+
 ```javascript
 const { observe, observeMultiple, observeAll, getDefault } = NRS({
   complex: () => ({
@@ -125,11 +126,11 @@ const { setState } = NRS({
 setTimeout(() => {
   setState({ height: 42 }); // "height" wil be observed after 5 seconds
   setState((prevState) => {
-    if(!prevState.complex) {
-      return { complex: { uid:"114514", name:"1g1g1g1g" } } // the mutation will be observed
+    if (!prevState.complex) {
+      return { complex: { uid: "114514", name: "1g1g1g1g" } }; // the mutation will be observed
     }
     return prevState; // no change will be observed
-  })
+  });
 }, 5000);
 ```
 
@@ -194,19 +195,19 @@ sometimes we might need a asynchronous process happened after dispatching data, 
 
 the second argument is a config object containing:
 
-***Start?: () => void***
+**_Start?: () => void_**
 fire on start
 
-***success?: (r: ReturnType<S[K]>) => void***
+**_success?: (r: ReturnType<S[K]>) => void_**
 fire on start, carried with resolved value
 
-***fail?: (error: unknown) => void***
+**_fail?: (error: unknown) => void_**
 fire on error
 
-***errorFallback?: () => ReturnType<S[K]>***
+**_errorFallback?: () => ReturnType<S[K]>_**
 a callback providing a value when error to update store, the store will not be updated if it is undefined
 
-***always?: () => void***
+**_always?: () => void_**
 fire on the Observable complete or Promise finalized
 
 ```javascript
@@ -230,7 +231,7 @@ const dispatchHeight = createAsyncDispatch<"height", "clear" | "auto", number>({
     }
     return Promise.resolve(h);
   },
-}, 
+},
 // optional second argument
 );
 // we can observe "height" like usual
@@ -244,6 +245,7 @@ clone function is for achieving immutability
 compare function is for reducing unnecessary observation
 
 example
+
 ```javascript
 import { clone, cloneDeep } from "lodash";
 const { getState, setState } = NRS(
@@ -297,6 +299,7 @@ observe("complex", console.log);
 sometimes we want a reduced or mapped value from our defined data in store
 
 example
+
 ```javascript
 const { withComputation } = NRS({
   height: () => 0,
@@ -326,6 +329,7 @@ setTimeout(unObserve, 2000);
 sometimes the computation might not immediately computed, we can return an Observable object instead.
 
 example
+
 ```javascript
 import { map, timer } from "rxjs";
 
@@ -343,6 +347,7 @@ compute.observe((h) => {
 
 setState({ height: 42 });
 ```
+
 **_Schedule and fire on create_**
 
 schedule mode: sync or async, default to async, if set to async, only the last value of current call stack can be observed
@@ -350,17 +355,63 @@ schedule mode: sync or async, default to async, if set to async, only the last v
 fire on create: the default can be observed if set to true
 
 example:
+
 ```javascript
-const { withComputation } = NRS({
-  height: () => 0,
-}, 
+const { withComputation } = NRS(
+  {
+    height: () => 0,
+  },
   {
     config: {
       schedule: "async", // you can call setState many times in a sync way, but only last mutation can be observed, normally useful on production, but keeping it "sync" is good for development debugging
-      fireOnCreate: false,// the default value cannot be observed
+      fireOnCreate: false, // the default value cannot be observed
     },
   }
 );
+```
+
+**_Define your own Mid-wares_**
+
+"getDataSource" method returns a RxJS Observable, which gives you a independent data stream pipeline.
+
+we can add some Mid-wares to achieve certain effects.
+
+example: Report some data change to a server.
+
+```javascript
+import {
+  map,
+  exhaustMap,
+  ajax,
+  catchError,
+  of,
+  distinctUntilChange,
+  AjaxResponse,
+  AjaxError,
+} from "rxjs";
+const { getDataSource } = NRS({
+  complex: () => ({
+    uid: "",
+    name: "",
+  }),
+});
+getDataSource()
+  .pipe(
+    map(({ complex }) => complex.uid),
+    distinctUntilChange(), // do not trigger a request if uid not change
+    exhaustMap((uid) =>
+      ajax({
+        // wait until previous request finish, ignore incoming uid during previous requesting
+        method: "POST",
+        url: "some.url.example",
+      }).pipe(
+        catchError((err: AjaxError) => of(err)) // catch the request error to keep the data stream alive
+      )
+    )
+  )
+  .subscribe((r: AjaxError | AjaxResponse<any>) => {
+    // perform some tasks if needed
+  });
 ```
 
 ## Use a Immutable Reactive Store (IRS):
@@ -370,6 +421,7 @@ Only [Immutable data structure](https://immutable-js.com/) or Primitive data typ
 Immutable follows Deep-copy-on-write pattern and has its own equals method to compare, so we do not need to provide clone and compare function
 
 example:
+
 ```javascript
 import { Map as IMap, List } from "immutable";
 
