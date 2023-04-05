@@ -51,4 +51,11 @@ export declare class RxStoreImpl<S extends BS> implements Subscribable<S>, RxSto
         computation: ComputationAsync<R, S, KS>;
         keys: KS[];
     }): ComputedAsyncImpl<R, S, KS>;
+    children<K extends (keyof S)[]>(selectors: K): readonly [{
+        setParentState: <KK extends K[number]>(key: KK, value: ReturnType<S[KK]>) => boolean;
+        getParentState: <KK_1 extends K[number]>(key: KK_1) => ReturnType<S[KK_1]> | undefined;
+        getParentDefault: <KK_2 extends K[number]>(key: KK_2) => ReturnType<S[KK_2]> | undefined;
+        comparator: Comparator<ReturnType<S[K[number]]>>;
+        parentComparatorMap: Partial<Partial<{ [K_1 in keyof S]: Comparator<ReturnType<S[K_1]>>; }>>;
+    }, import("rxjs").Observable<Partial<{ [K_2 in keyof S]: ReturnType<S[K_2]>; }>>];
 }

@@ -19,9 +19,7 @@ declare class RxNStoreImpl<S extends BS> extends RxStoreImpl<S> implements Subsc
     };
     getDefaults<KS extends (keyof S)[]>(keys: KS): { [k in keyof S]: ReturnType<S[k]>; };
     getDefaultAll(): { [k in keyof S]: ReturnType<S[k]>; };
-    getCloneFunctionMap(): {
-        [x: string]: { [K in keyof S]: CloneFunction<ReturnType<S[K]>>; }[string] | undefined;
-    };
+    getCloneFunctionMap(): Partial<{ [K in keyof S]: Comparator<ReturnType<S[K]>>; }>;
 }
 export declare function NRS<S extends BS>(initiator: S, { cloneFunction, cloneFunctionMap, comparator, comparatorMap, config, }?: Partial<NRSConfig<S>>): RxNStoreImpl<S>;
 declare class RxImStoreImpl<S extends IBS> extends RxStoreImpl<S> implements Subscribable<S>, RxImStore<S> {

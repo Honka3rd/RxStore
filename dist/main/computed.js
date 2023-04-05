@@ -64,7 +64,7 @@ var ComputedAsyncImpl = /** @class */ (function () {
             }), (0, rxjs_1.tap)(function (_a) {
                 var success = _a.success;
                 if (success) {
-                    _this.state = rx_store_types_1.AsyncStates.FULLFILLED;
+                    _this.state = rx_store_types_1.AsyncStates.FULFILLED;
                     return;
                 }
                 _this.state = rx_store_types_1.AsyncStates.ERROR;
