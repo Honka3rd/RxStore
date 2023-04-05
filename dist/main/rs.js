@@ -14,6 +14,9 @@ var RxStoreImpl = /** @class */ (function () {
             this.comparator = comparator;
         }
         this.objectCompare = (0, objectShallowCompareFactory_1.objectShallowCompareF)(this.comparator, this.comparatorMap);
+        if (comparatorMap) {
+            Object.freeze(comparatorMap);
+        }
         this.setState = this.setState.bind(this);
         this.getState = this.getState.bind(this);
         this.reset = this.reset.bind(this);
@@ -54,6 +57,9 @@ var RxStoreImpl = /** @class */ (function () {
     };
     RxStoreImpl.prototype.getDefault = function (key) {
         return this.connector.getDefault(key);
+    };
+    RxStoreImpl.prototype.getComparatorMap = function () {
+        return this.comparatorMap;
     };
     RxStoreImpl.prototype.setState = function (updated) {
         if (typeof updated === "function") {
