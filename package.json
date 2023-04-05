@@ -1,6 +1,6 @@
 {
   "name": "rx-store-core",
-  "version": "2.0.5",
+  "version": "2.0.6",
   "description": "An Rxjs and Immutable based Type-safe state management tool",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -26,7 +26,7 @@
   "homepage": "https://github.com/Honka3rd/RxStore#readme",
   "dependencies": {
     "immutable": "^4.2.2",
-    "rx-store-types": "^1.1.5",
+    "rx-store-types": "^1.2.0",
     "rxjs": "^7.8.0",
     "typescript": "5.0.2"
   }

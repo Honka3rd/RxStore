@@ -32,7 +32,7 @@ class RxNStoreImpl<S extends BS>
     comparatorMap?: ComparatorMap<S>
   ) {
     super(connector, comparator, comparatorMap);
-    if(!cloneFunction) {
+    if (!cloneFunction) {
       this.cloneFunction = shallowClone;
     }
 
@@ -51,7 +51,7 @@ class RxNStoreImpl<S extends BS>
     if (cloneFn) {
       return cloneFn(this.getState(key));
     }
-    
+
     return cloneFunction!(this.getState(key));
   }
 
@@ -96,7 +96,7 @@ class RxNStoreImpl<S extends BS>
   }
 
   getCloneFunctionMap() {
-    return { ...this.cloneFunctionMap };
+    return { ...this.cloneFunctionMap } as ComparatorMap<S>;
   }
 }
 

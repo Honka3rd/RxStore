@@ -1,6 +1,7 @@
 import {
   AnsycReducer,
-  AsyncDispatch, BS,
+  AsyncDispatch,
+  BS,
   Comparator,
   ComparatorMap,
   Computation,
@@ -9,12 +10,13 @@ import {
   Dispatch,
   Reducer,
   RxStore,
-  Subscribable
+  Subscribable,
 } from "rx-store-types";
 import { ComputedAsyncImpl, ComputedImpl } from "./computed";
 import { AsyncDispatcherImpl, DispatcherImpl } from "./dispatcher";
 import { objectShallowCompareF } from "./util/objectShallowCompareFactory";
 import { shallowCompare } from "./util/shallowCompare";
+import { distinctUntilChanged, map } from "rxjs";
 
 export class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
   comparator: Comparator<any> = shallowCompare;
@@ -34,9 +36,10 @@ export class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
       this.comparator,
       this.comparatorMap
     );
-    if(comparatorMap) {
+    if (comparatorMap) {
       Object.freeze(comparatorMap);
     }
+    this.comparator = this.comparator.bind(this);
     this.setState = this.setState.bind(this);
     this.getState = this.getState.bind(this);
     this.reset = this.reset.bind(this);
@@ -51,6 +54,7 @@ export class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
     this.withComputation = this.withComputation.bind(this);
     this.withAsyncComputation = this.withAsyncComputation.bind(this);
     this.getDefault = this.getDefault.bind(this);
+    this.children = this.children.bind(this);
   }
 
   observe<K extends keyof S>(
@@ -201,5 +205,51 @@ export class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
       this.connector,
       params.keys
     );
+  }
+
+  children<K extends (keyof S)[]>(selectors: K) {
+    const utilities = {
+      setParentState: <KK extends K[number]>(
+        key: KK,
+        value: ReturnType<S[KK]>
+      ) => {
+        if (this.connector.getAllKeys().includes(key)) {
+          this.setState({ [key]: value } as {});
+          return true;
+        }
+        return false;
+      },
+      getParentState: <KK extends K[number]>(key: KK) => {
+        if (!this.connector.getAllKeys().includes(key)) {
+          return;
+        }
+        return this.getState(key);
+      },
+      getParentDefault: <KK extends K[number]>(key: KK) => {
+        if (!this.connector.getAllKeys().includes(key)) {
+          return;
+        }
+        return this.getDefault(key);
+      },
+      comparator: this.comparator as Comparator<ReturnType<S[K[number]]>>,
+      parentComparatorMap: this.comparatorMap
+        ? selectors.reduce((acc, next) => {
+            acc[next] = this.comparatorMap?.[next];
+            return acc;
+          }, {} as Partial<ComparatorMap<S>>)
+        : ({} as Partial<ComparatorMap<S>>),
+    };
+    return [
+      utilities,
+      this.getDataSource().pipe(
+        map((states) =>
+          selectors.reduce((acc, next) => {
+            acc[next] = states[next];
+            return acc;
+          }, {} as Partial<{ [K in keyof S]: ReturnType<S[K]> }>)
+        ),
+        distinctUntilChanged(this.objectCompare)
+      ),
+    ] as const;
   }
 }

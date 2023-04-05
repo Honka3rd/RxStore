@@ -96,7 +96,7 @@ export class ComputedAsyncImpl<R, S extends BS, KS extends keyof S>
             }),
             tap(({ success }) => {
               if (success) {
-                this.state = AsyncStates.FULLFILLED;
+                this.state = AsyncStates.FULFILLED;
                 return;
               }
               this.state = AsyncStates.ERROR;
