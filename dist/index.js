@@ -14,19 +14,36 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.IRS = exports.NRS = void 0;
+exports.shallowCompare = exports.shallowClone = exports.IRS = exports.NRS = void 0;
 var immutable_1 = require("immutable");
 var connectivity_1 = require("./main/connectivity");
 var rs_1 = require("./main/rs");
 var isPrimitive_1 = require("./main/util/isPrimitive");
 var shallowClone_1 = require("./main/util/shallowClone");
+Object.defineProperty(exports, "shallowClone", { enumerable: true, get: function () { return shallowClone_1.shallowClone; } });
+var shallowCompare_1 = require("./main/util/shallowCompare");
+Object.defineProperty(exports, "shallowCompare", { enumerable: true, get: function () { return shallowCompare_1.shallowCompare; } });
 var RxNStoreImpl = /** @class */ (function (_super) {
     __extends(RxNStoreImpl, _super);
     function RxNStoreImpl(connector, cloneFunction, cloneFunctionMap, comparator, comparatorMap) {
         var _this = _super.call(this, connector, comparator, comparatorMap) || this;
         _this.cloneFunction = cloneFunction;
         _this.cloneFunctionMap = cloneFunctionMap;
+        if (!cloneFunction) {
+            _this.cloneFunction = shallowClone_1.shallowClone;
+        }
         _this.getClonedState = _this.getClonedState.bind(_this);
         _this.getImmutableState = _this.getImmutableState.bind(_this);
         _this.getStates = _this.getStates.bind(_this);
@@ -41,10 +58,7 @@ var RxNStoreImpl = /** @class */ (function (_super) {
         if (cloneFn) {
             return cloneFn(this.getState(key));
         }
-        if (cloneFunction) {
-            return cloneFunction(this.getState(key));
-        }
-        return (0, shallowClone_1.shallowClone)(this.getState(key));
+        return cloneFunction(this.getState(key));
     };
     RxNStoreImpl.prototype.getStateAll = function () {
         return this.connector.getAll();
@@ -77,6 +91,9 @@ var RxNStoreImpl = /** @class */ (function (_super) {
     };
     RxNStoreImpl.prototype.getDefaultAll = function () {
         return this.connector.getDefaultAll();
+    };
+    RxNStoreImpl.prototype.getCloneFunctionMap = function () {
+        return __assign({}, this.cloneFunctionMap);
     };
     return RxNStoreImpl;
 }(rs_1.RxStoreImpl));

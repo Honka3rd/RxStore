@@ -1,8 +1,10 @@
 import { Collection, Map } from "immutable";
 import { BS, CloneFunction, Comparator, ComparatorMap, Connectivity, NRSConfig, RxNStore, RxImStore, Subscribable, IBS, ReactiveConfig } from "rx-store-types";
 import { RxStoreImpl } from "./main/rs";
+import { shallowClone } from "./main/util/shallowClone";
+import { shallowCompare } from "./main/util/shallowCompare";
 declare class RxNStoreImpl<S extends BS> extends RxStoreImpl<S> implements Subscribable<S>, RxNStore<S> {
-    private cloneFunction?;
+    cloneFunction?: CloneFunction<ReturnType<S[keyof S]>> | undefined;
     private cloneFunctionMap?;
     constructor(connector: Connectivity<S>, cloneFunction?: CloneFunction<ReturnType<S[keyof S]>> | undefined, cloneFunctionMap?: Partial<{ [K in keyof S]: CloneFunction<ReturnType<S[K]>>; }> | undefined, comparator?: Comparator<ReturnType<S[keyof S]>>, comparatorMap?: ComparatorMap<S>);
     getClonedState<K extends keyof S>(key: K): ReturnType<S[K]>;
@@ -17,6 +19,9 @@ declare class RxNStoreImpl<S extends BS> extends RxStoreImpl<S> implements Subsc
     };
     getDefaults<KS extends (keyof S)[]>(keys: KS): { [k in keyof S]: ReturnType<S[k]>; };
     getDefaultAll(): { [k in keyof S]: ReturnType<S[k]>; };
+    getCloneFunctionMap(): {
+        [x: string]: { [K in keyof S]: CloneFunction<ReturnType<S[K]>>; }[string] | undefined;
+    };
 }
 export declare function NRS<S extends BS>(initiator: S, { cloneFunction, cloneFunctionMap, comparator, comparatorMap, config, }?: Partial<NRSConfig<S>>): RxNStoreImpl<S>;
 declare class RxImStoreImpl<S extends IBS> extends RxStoreImpl<S> implements Subscribable<S>, RxImStore<S> {
@@ -27,4 +32,4 @@ declare class RxImStoreImpl<S extends IBS> extends RxStoreImpl<S> implements Sub
     getDefaultAll(): Map<keyof S, ReturnType<S[keyof S]>>;
 }
 export declare function IRS<S extends IBS>(initiator: S, config?: ReactiveConfig): RxImStoreImpl<S>;
-export {};
+export { shallowClone, shallowCompare };

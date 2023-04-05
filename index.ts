@@ -32,6 +32,10 @@ class RxNStoreImpl<S extends BS>
     comparatorMap?: ComparatorMap<S>
   ) {
     super(connector, comparator, comparatorMap);
+    if(!cloneFunction) {
+      this.cloneFunction = shallowClone;
+    }
+
     this.getClonedState = this.getClonedState.bind(this);
     this.getImmutableState = this.getImmutableState.bind(this);
     this.getStates = this.getStates.bind(this);
@@ -47,12 +51,8 @@ class RxNStoreImpl<S extends BS>
     if (cloneFn) {
       return cloneFn(this.getState(key));
     }
-
-    if (cloneFunction) {
-      return cloneFunction(this.getState(key));
-    }
-
-    return shallowClone(this.getState(key));
+    
+    return cloneFunction!(this.getState(key));
   }
 
   getStateAll() {
