@@ -18,6 +18,7 @@ import {
 import { RxStoreImpl } from "./main/rs";
 import { isPrimitive } from "./main/util/isPrimitive";
 import { shallowClone } from "./main/util/shallowClone";
+import { shallowCompare } from "./main/util/shallowCompare";
 
 class RxNStoreImpl<S extends BS>
   extends RxStoreImpl<S>
@@ -25,7 +26,7 @@ class RxNStoreImpl<S extends BS>
 {
   constructor(
     connector: Connectivity<S>,
-    private cloneFunction?: CloneFunction<ReturnType<S[keyof S]>>,
+    public cloneFunction?: CloneFunction<ReturnType<S[keyof S]>>,
     private cloneFunctionMap?: CloneFunctionMap<S>,
     comparator?: Comparator<any>,
     comparatorMap?: ComparatorMap<any>
@@ -92,6 +93,10 @@ class RxNStoreImpl<S extends BS>
 
   getDefaultAll() {
     return this.connector.getDefaultAll();
+  }
+
+  getCloneFunctionMap() {
+    return { ...this.cloneFunctionMap };
   }
 }
 
@@ -166,3 +171,5 @@ class RxImStoreImpl<S extends IBS>
 export function IRS<S extends IBS>(initiator: S, config?: ReactiveConfig) {
   return new RxImStoreImpl(new ConnectivityImpl(initiator, config));
 }
+
+export { shallowClone, shallowCompare };

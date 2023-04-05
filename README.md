@@ -194,20 +194,16 @@ sometimes we might need a asynchronous process happened after dispatching data, 
 
 the second argument is a config object containing:
 
-***Start?: () => void***
-fire on start
 
-***success?: (r: ReturnType<S[K]>) => void***
-fire on start, carried with resolved value
+| Function      | Argument         | Return           | Required     | Description                                                                                               |
+| ------------- | ---------------- | ---------------- |------------- | --------------------------------------------------------------------------------------------------------- |
+| start         | N/A              | void             | No           | fire on start      |                                                                                            
+| success       | ReturnType<S[K]> | void             | No           | fire on success, carried with resolved value |
+| fail          | unknown          | void             | No           | fire on error, carried with an error |
+| errorFallback | N/A              | ReturnType<S[K]> | No           | a callback providing a value when error to update store, the store will not be updated if it is undefined |
+| always        | N/A              | void             | No           | fire on the Observable complete or Promise finalized |
 
-***fail?: (error: unknown) => void***
-fire on error
-
-***errorFallback?: () => ReturnType<S[K]>***
-a callback providing a value when error to update store, the store will not be updated if it is undefined
-
-***always?: () => void***
-fire on the Observable complete or Promise finalized
+***you do not need to try catch the async dispatch function, as the error has been captured inside, use the second argument to handle error***
 
 ```javascript
 const dispatchHeight = createAsyncDispatch<"height", "clear" | "auto", number>({
