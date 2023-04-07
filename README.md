@@ -179,7 +179,7 @@ const setHeightBtn = document.querySelector<HTMLButtonElement>("#height-setter")
 setHeightBtn?.addEventListener("click", changeHeight);
 
 const clearHeightBtn = document.querySelector<HTMLButtonElement>("#height-clear");
-clearHeightBtn?.addEventListener("click", changeHeight);
+clearHeightBtn?.addEventListener("click", clearHeight);
 
 const output = document.querySelector<HTMLDivElement>("#height-output");
 observe("height", (h) => {

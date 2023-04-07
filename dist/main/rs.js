@@ -121,6 +121,15 @@ var RxStoreImpl = /** @class */ (function () {
                 }
                 return false;
             },
+            observeParentStates: function (observer) {
+                return _this.observeMultiple(selectors, observer);
+            },
+            observeParentState: function (key, observer) {
+                if (!_this.connector.getAllKeys().includes(key)) {
+                    return;
+                }
+                return _this.observe(key, observer);
+            },
             getParentState: function (key) {
                 if (!_this.connector.getAllKeys().includes(key)) {
                     return;

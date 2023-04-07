@@ -219,6 +219,20 @@ export class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
         }
         return false;
       },
+      observeParentStates: (
+        observer: (result: Record<K[number], ReturnType<S[K[number]]>>) => void
+      ) => {
+        return this.observeMultiple(selectors, observer);
+      },
+      observeParentState: <KK extends K[number]>(
+        key: KK,
+        observer: (result: ReturnType<S[KK]>) => void
+      ) => {
+        if (!this.connector.getAllKeys().includes(key)) {
+          return;
+        }
+        return this.observe(key, observer);
+      },
       getParentState: <KK extends K[number]>(key: KK) => {
         if (!this.connector.getAllKeys().includes(key)) {
           return;
