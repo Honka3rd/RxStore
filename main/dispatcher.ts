@@ -1,7 +1,7 @@
 import { lastValueFrom, Observable } from "rxjs";
 import {
   Action,
-  AnsycReducer,
+  AsyncReducer,
   AsyncDispatchConfig,
   AsyncDispatcher,
   BS,
@@ -9,6 +9,7 @@ import {
   Reducer,
   RxStore,
 } from "rx-store-types";
+import { bound } from "./decorators/bound";
 
 export class DispatcherImpl<S extends BS, K extends keyof S, T, P>
   implements Dispatcher<P, T>
@@ -17,10 +18,9 @@ export class DispatcherImpl<S extends BS, K extends keyof S, T, P>
     private reducer: Reducer<T, P, S, K>,
     private store: RxStore<S>,
     private key: K
-  ) {
-    this.dispatch = this.dispatch.bind(this);
-  }
+  ) {}
 
+  @bound
   dispatch(action: Action<P, T>) {
     const mutation = {
       [this.key]: this.reducer(this.store.getState(this.key), {
@@ -39,13 +39,12 @@ export class AsyncDispatcherImpl<S extends BS, K extends keyof S, T, P>
   implements AsyncDispatcher<P, T, S, K>
 {
   constructor(
-    private reducer: AnsycReducer<T, P, S, K>,
+    private reducer: AsyncReducer<T, P, S, K>,
     private store: RxStore<S>,
     private key: K
-  ) {
-    this.dispatch = this.dispatch.bind(this);
-  }
+  ) {}
 
+  @bound
   async dispatch(action: Action<P, T>, config: AsyncDispatchConfig<S, K> = {}) {
     const { start, fail, errorFallback, always, success } = config;
     const asyncResult = this.reducer(this.store.getState(this.key), action);

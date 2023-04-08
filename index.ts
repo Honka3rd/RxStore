@@ -19,6 +19,8 @@ import { RxStoreImpl } from "./main/rs";
 import { isPrimitive } from "./main/util/isPrimitive";
 import { shallowClone } from "./main/util/shallowClone";
 import { shallowCompare } from "./main/util/shallowCompare";
+import { bound } from "./main/decorators/bound";
+import { isObject } from "./main/util/isObject";
 
 class RxNStoreImpl<S extends BS>
   extends RxStoreImpl<S>
@@ -35,15 +37,9 @@ class RxNStoreImpl<S extends BS>
     if (!cloneFunction) {
       this.cloneFunction = shallowClone;
     }
-
-    this.getClonedState = this.getClonedState.bind(this);
-    this.getImmutableState = this.getImmutableState.bind(this);
-    this.getStates = this.getStates.bind(this);
-    this.getStateAll = this.getStateAll.bind(this);
-    this.getDefault = this.getDefault.bind(this);
-    this.getDefaultAll = this.getDefaultAll.bind(this);
   }
 
+  @bound
   getClonedState<K extends keyof S>(key: K) {
     const { cloneFunction, cloneFunctionMap } = this;
     const cloneFn = cloneFunctionMap?.[key];
@@ -55,14 +51,17 @@ class RxNStoreImpl<S extends BS>
     return cloneFunction!(this.getState(key));
   }
 
+  @bound
   getStateAll() {
     return this.connector.getAll();
   }
 
+  @bound
   getStates<KS extends keyof S>(keys: KS[]) {
     return this.connector.getMultiple(keys);
   }
 
+  @bound
   getImmutableState<K extends keyof S>(key: K) {
     const origin = this.getState(key);
     if (isPrimitive(origin)) {
@@ -87,14 +86,17 @@ class RxNStoreImpl<S extends BS>
     } as const;
   }
 
+  @bound
   getDefaults<KS extends (keyof S)[]>(keys: KS) {
     return this.connector.getDefaults(keys);
   }
 
+  @bound
   getDefaultAll() {
     return this.connector.getDefaultAll();
   }
 
+  @bound
   getCloneFunctionMap() {
     return { ...this.cloneFunctionMap } as ComparatorMap<S>;
   }
@@ -133,26 +135,19 @@ class RxImStoreImpl<S extends IBS>
         return prev === next;
       }
     );
-    const invalid = Object.values(connector.getDefaultAll()).find(
-      (val) => val === undefined || (!isImmutable(val) && !isPrimitive(val))
-    );
-    if (invalid) {
-      throw Error(`${String(invalid)} is not an immutable Object`);
-    }
-    this.getStateAll = this.getStateAll.bind(this);
-    this.getStates = this.getStates.bind(this);
-    this.getDefaults = this.getDefaults.bind(this);
-    this.getDefaultAll = this.getDefaultAll.bind(this);
   }
 
+  @bound
   getStateAll() {
     return Map(this.connector.getAll()) as Map<keyof S, ReturnType<S[keyof S]>>;
   }
 
+  @bound
   getStates<KS extends keyof S>(keys: KS[]) {
     return Map(this.connector.getMultiple(keys)) as Map<KS, ReturnType<S[KS]>>;
   }
 
+  @bound
   getDefaults<KS extends (keyof S)[]>(keys: KS) {
     return Map(this.connector.getDefaults(keys)) as Map<
       keyof S,
@@ -160,6 +155,7 @@ class RxImStoreImpl<S extends IBS>
     >;
   }
 
+  @bound
   getDefaultAll() {
     return Map(this.connector.getDefaultAll()) as Map<
       keyof S,
@@ -172,4 +168,4 @@ export function IRS<S extends IBS>(initiator: S, config?: ReactiveConfig) {
   return new RxImStoreImpl(new ConnectivityImpl(initiator, config));
 }
 
-export { shallowClone, shallowCompare };
+export { shallowClone, shallowCompare, bound, isPrimitive, isObject };

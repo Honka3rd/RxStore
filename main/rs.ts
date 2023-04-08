@@ -1,5 +1,5 @@
 import {
-  AnsycReducer,
+  AsyncReducer,
   AsyncDispatch,
   BS,
   Comparator,
@@ -17,6 +17,7 @@ import { AsyncDispatcherImpl, DispatcherImpl } from "./dispatcher";
 import { objectShallowCompareF } from "./util/objectShallowCompareFactory";
 import { shallowCompare } from "./util/shallowCompare";
 import { distinctUntilChanged, map } from "rxjs";
+import { bound } from "./decorators/bound";
 
 export class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
   comparator: Comparator<any> = shallowCompare;
@@ -36,27 +37,9 @@ export class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
       this.comparator,
       this.comparatorMap
     );
-    if (comparatorMap) {
-      Object.freeze(comparatorMap);
-    }
-    this.comparator = this.comparator.bind(this);
-    this.setState = this.setState.bind(this);
-    this.getState = this.getState.bind(this);
-    this.reset = this.reset.bind(this);
-    this.resetAll = this.resetAll.bind(this);
-    this.resetMultiple = this.resetMultiple.bind(this);
-    this.observeAll = this.observeAll.bind(this);
-    this.observeMultiple = this.observeMultiple.bind(this);
-    this.observe = this.observe.bind(this);
-    this.getDataSource = this.getDataSource.bind(this);
-    this.createDispatch = this.createDispatch.bind(this);
-    this.createAsyncDispatch = this.createAsyncDispatch.bind(this);
-    this.withComputation = this.withComputation.bind(this);
-    this.withAsyncComputation = this.withAsyncComputation.bind(this);
-    this.getDefault = this.getDefault.bind(this);
-    this.children = this.children.bind(this);
   }
 
+  @bound
   observe<K extends keyof S>(
     key: K,
     observer: (result: ReturnType<S[K]>) => void,
@@ -69,6 +52,7 @@ export class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
     return this.connector.observe(key, observer, compareFn);
   }
 
+  @bound
   observeMultiple<KS extends keyof S>(
     keys: KS[],
     observer: (result: { [K in KS]: ReturnType<S[K]> }) => void,
@@ -83,6 +67,7 @@ export class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
     return this.connector.observeMultiple(keys, observer, compareFn);
   }
 
+  @bound
   observeAll(
     observer: (result: { [K in keyof S]: ReturnType<S[K]> }) => void,
     comparator?: (
@@ -96,18 +81,22 @@ export class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
     return this.connector.observeAll(observer, compareFn);
   }
 
+  @bound
   getState<K extends keyof S>(key: K) {
     return this.connector.get(key);
   }
 
+  @bound
   getDefault<K extends keyof S>(key: K) {
     return this.connector.getDefault(key);
   }
 
+  @bound
   getComparatorMap() {
     return this.comparatorMap;
   }
 
+  @bound
   setState<KS extends keyof S>(
     updated:
       | { [K in KS]: ReturnType<S[K]> }
@@ -149,25 +138,30 @@ export class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
     return this;
   }
 
+  @bound
   reset<K extends keyof S>(key: K) {
     this.connector.reset(key);
     return this;
   }
 
+  @bound
   resetMultiple<KS extends (keyof S)[]>(keys: KS) {
     this.connector.resetMultiple(keys);
     return this;
   }
 
+  @bound
   resetAll() {
     this.connector.resetAll();
     return this;
   }
 
+  @bound
   getDataSource() {
     return this.connector.source();
   }
 
+  @bound
   createDispatch<K extends keyof S, T, P = void>(params: {
     reducer: Reducer<T, P, S, K>;
     key: K;
@@ -176,14 +170,16 @@ export class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
       .dispatch;
   }
 
+  @bound
   createAsyncDispatch<K extends keyof S, T, P = void>(params: {
-    reducer: AnsycReducer<T, P, S, K>;
+    reducer: AsyncReducer<T, P, S, K>;
     key: K;
   }): AsyncDispatch<P, T, S, K> {
     return new AsyncDispatcherImpl<S, K, T, P>(params.reducer, this, params.key)
       .dispatch;
   }
 
+  @bound
   withComputation<R, KS extends keyof S>(params: {
     computation: Computation<R, S, KS>;
     keys: KS[];
@@ -196,17 +192,29 @@ export class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
     );
   }
 
+  @bound
   withAsyncComputation<R, KS extends keyof S>(params: {
     computation: ComputationAsync<R, S, KS>;
     keys: KS[];
+    comparator?: Comparator<{ [K in KS]: ReturnType<S[K]> }>;
+    onStart?: (val: { [K in keyof S]: ReturnType<S[K]> }) => void;
+    onError?: (err: any) => void;
+    onSuccess?: (result: R) => void;
+    onComplete?: () => void
   }) {
     return new ComputedAsyncImpl(
       params.computation,
       this.connector,
-      params.keys
+      params.keys,
+      params.comparator,
+      params.onStart,
+      params.onError,
+      params.onSuccess,
+      params.onComplete
     );
   }
 
+  @bound
   children<K extends (keyof S)[]>(selectors: K) {
     const utilities = {
       setParentState: <KK extends K[number]>(

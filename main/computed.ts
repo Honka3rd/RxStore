@@ -1,4 +1,12 @@
-import { catchError, from, map, of, switchMap, tap } from "rxjs";
+import {
+  catchError,
+  distinctUntilChanged,
+  from,
+  map,
+  of,
+  switchMap,
+  tap,
+} from "rxjs";
 import {
   Computed,
   Computation,
@@ -10,6 +18,7 @@ import {
   AsyncResponse,
   AsyncStates,
 } from "rx-store-types";
+import { bound } from "./decorators/bound";
 
 export class ComputedImpl<R, S extends BS, KS extends keyof S>
   implements Computed<R, S, KS>
@@ -25,14 +34,14 @@ export class ComputedImpl<R, S extends BS, KS extends keyof S>
   ) {
     this.computation = computation;
     this.computed = this.computation(subscribable.getDefaultAll());
-    this.get = this.get.bind(this);
-    this.observe = this.observe.bind(this);
   }
 
+  @bound
   get() {
     return this.computed;
   }
 
+  @bound
   observe(observer: (r: R) => void) {
     return this.subscribable.observeMultiple(
       this.keys,
@@ -57,12 +66,16 @@ export class ComputedAsyncImpl<R, S extends BS, KS extends keyof S>
     computation: ComputationAsync<R, S, KS>,
     private subscribable: Connectivity<S>,
     private keys: Array<KS>,
+    private comparator?: Comparator<{ [K in KS]: ReturnType<S[K]> }>,
+    private onStart?: (val: { [K in keyof S]: ReturnType<S[K]> }) => void,
+    private onError?: (err: any) => void,
+    private onSuccess?: (result: R) => void,
+    private onComplete?: () => void
   ) {
     this.computation = computation;
-    this.get = this.get.bind(this);
-    this.observe = this.observe.bind(this);
   }
 
+  @bound
   get() {
     return {
       state: this.state,
@@ -70,13 +83,22 @@ export class ComputedAsyncImpl<R, S extends BS, KS extends keyof S>
     };
   }
 
+  @bound
   observe(observer: (r: AsyncResponse<R>) => void) {
     const subscription = this.subscribable
       .source()
       .pipe(
-        tap(() => {
+        tap((val) => {
           this.state = AsyncStates.PENDING;
+          this.onStart?.(val);
         }),
+        map((val) => {
+          return this.keys.reduce((acc, next) => {
+            acc[next] = val[next];
+            return acc;
+          }, {} as { [K in KS]: ReturnType<S[K]> });
+        }),
+        distinctUntilChanged(this.comparator),
         switchMap((states) => {
           const asyncReturn = this.computation(states);
           const async$ =
@@ -94,17 +116,22 @@ export class ComputedAsyncImpl<R, S extends BS, KS extends keyof S>
                 cause: err,
               } as const);
             }),
-            tap(({ success }) => {
-              if (success) {
+            tap((deferred) => {
+              if (deferred.success) {
                 this.state = AsyncStates.FULFILLED;
+                this.onSuccess?.(deferred.result);
                 return;
               }
+              this.onError?.(deferred.cause);
               this.state = AsyncStates.ERROR;
             })
           );
         })
       )
-      .subscribe(observer);
+      .subscribe({
+        next: observer,
+        complete: this.onComplete
+      });
     return () => subscription.unsubscribe();
   }
 }

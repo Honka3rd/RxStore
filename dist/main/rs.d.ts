@@ -1,4 +1,4 @@
-import { AnsycReducer, AsyncDispatch, BS, Comparator, Computation, ComputationAsync, Connectivity, Dispatch, Reducer, RxStore, Subscribable } from "rx-store-types";
+import { AsyncReducer, AsyncDispatch, BS, Comparator, Computation, ComputationAsync, Connectivity, Dispatch, Reducer, RxStore, Subscribable } from "rx-store-types";
 import { ComputedAsyncImpl, ComputedImpl } from "./computed";
 export declare class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
     protected connector: Connectivity<S>;
@@ -40,7 +40,7 @@ export declare class RxStoreImpl<S extends BS> implements Subscribable<S>, RxSto
         key: K;
     }): Dispatch<P, T>;
     createAsyncDispatch<K extends keyof S, T, P = void>(params: {
-        reducer: AnsycReducer<T, P, S, K>;
+        reducer: AsyncReducer<T, P, S, K>;
         key: K;
     }): AsyncDispatch<P, T, S, K>;
     withComputation<R, KS extends keyof S>(params: {
@@ -50,6 +50,15 @@ export declare class RxStoreImpl<S extends BS> implements Subscribable<S>, RxSto
     withAsyncComputation<R, KS extends keyof S>(params: {
         computation: ComputationAsync<R, S, KS>;
         keys: KS[];
+        comparator?: Comparator<{
+            [K in KS]: ReturnType<S[K]>;
+        }>;
+        onStart?: (val: {
+            [K in keyof S]: ReturnType<S[K]>;
+        }) => void;
+        onError?: (err: any) => void;
+        onSuccess?: (result: R) => void;
+        onComplete?: () => void;
     }): ComputedAsyncImpl<R, S, KS>;
     children<K extends (keyof S)[]>(selectors: K): readonly [{
         setParentState: <KK extends K[number]>(key: KK, value: ReturnType<S[KK]>) => boolean;

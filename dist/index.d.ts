@@ -1,8 +1,11 @@
 import { Collection, Map } from "immutable";
 import { BS, CloneFunction, Comparator, ComparatorMap, Connectivity, NRSConfig, RxNStore, RxImStore, Subscribable, IBS, ReactiveConfig } from "rx-store-types";
 import { RxStoreImpl } from "./main/rs";
+import { isPrimitive } from "./main/util/isPrimitive";
 import { shallowClone } from "./main/util/shallowClone";
 import { shallowCompare } from "./main/util/shallowCompare";
+import { bound } from "./main/decorators/bound";
+import { isObject } from "./main/util/isObject";
 declare class RxNStoreImpl<S extends BS> extends RxStoreImpl<S> implements Subscribable<S>, RxNStore<S> {
     cloneFunction?: CloneFunction<ReturnType<S[keyof S]>> | undefined;
     private cloneFunctionMap?;
@@ -30,4 +33,4 @@ declare class RxImStoreImpl<S extends IBS> extends RxStoreImpl<S> implements Sub
     getDefaultAll(): Map<keyof S, ReturnType<S[keyof S]>>;
 }
 export declare function IRS<S extends IBS>(initiator: S, config?: ReactiveConfig): RxImStoreImpl<S>;
-export { shallowClone, shallowCompare };
+export { shallowClone, shallowCompare, bound, isPrimitive, isObject };
