@@ -478,9 +478,9 @@ import { shallowClone, shallowCompare, bound, isPrimitive, isObject } from "rx-s
 ```
 
 | Function      | Argument         | Return           | Description                                                                                            |
-| ------------- | ---------------- | ---------------- |------------- | --------------------------------------------------------------------------------------- |
+| ------------- | ---------------- | ---------------- |------------------------------------------------------------------------------------------------------- |
 | shallowClone  | any              | any              | a function for shallow cloning majority JS data structure       |                                                                                            
-| shallowCompare| any, any         | boolean          | a function for shallow compare by each key of object |
+| shallowCompare| any, any         | boolean          | a function for shallow compare by each key of object                                                   |
 | bound         | Function, ClassMethodDecoratorContext          | void             | a Typescript Method level Decorator for binding class method to instance |
-| isPrimitive   | any              | boolean          | a function to judge a value is a primitive type or not |
-| isObject      | any              | boolean          | a function to judge a value is a reference type or not |
+| isPrimitive   | any              | boolean          | a function to judge a value is a primitive type or not                                                 |
+| isObject      | any              | boolean          | a function to judge a value is a reference type or not                                                 |
