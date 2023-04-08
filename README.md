@@ -324,16 +324,35 @@ setTimeout(unObserve, 2000);
 
 sometimes the computation might not immediately computed, we can return an Observable object instead.
 
+the argument of "withAsyncComputation" is a configurable object containing
+
+keys: the variable names you defined in store
+
+and functions below:
+
+| Function      | Argument         | Return           | Required     | Description                                                                                               |
+| ------------- | ---------------- | ---------------- |------------- | --------------------------------------------------------------------------------------------------------- |
+| onStart         | { [K in keyof S]: ReturnType<S[K]> }             | void             | No           | fire on start      |                                                                                            
+| onError       | any | void             | No           | fire on error, carried with an error |
+| onSuccess          | result: R          | void             | No           | fire on success, carried with a resolved computed result|
+| onComplete | N/A              | void | No           | fire on the async computation stream complete |
+| comparator        | N/A              | void             | No           | customer comparator to compare upstream values (keys related values), to determine whether should the computation function get called |
+
 example
 
 ```javascript
 import { map, timer } from "rxjs";
 
+const { withAsyncComputation } = NRS({
+  height: () => 0,
+});
+
 const compute = withAsyncComputation({
-  keys: ["height"],
+  keys: ["height"], // keys you defined in NRS or IRS
   computation: ({ height }) => {
     return timer(1000).pipe(map(() => height * 2));
   },
+  // ...optional functions below
 });
 
 compute.observe((h) => {
@@ -342,6 +361,16 @@ compute.observe((h) => {
 });
 
 setState({ height: 42 });
+
+// you can also get a value and state by calling get
+// "state" is a enum including: PENDING, ERROR and FULFILLED
+console.log(compute.get())
+// should log { state: PENDING, value: 0 }
+
+setTimeout(() => {
+  console.log(compute.get())
+  // should log { state: FULFILLED, value: 84 }
+}, 1500)
 ```
 
 **_Schedule and fire on create_**
@@ -439,3 +468,19 @@ const { getStates, getStateAll } = IRS({
 // getStates and getStateAll returns a Immutable Map rather than a JS object
 
 ```
+
+## Common utility functions
+
+some handy functions used in rx-store-core library get exported for common usage or develop related plugins
+
+```javascript
+import { shallowClone, shallowCompare, bound, isPrimitive, isObject } from "rx-store-core";  
+```
+
+| Function      | Argument         | Return           | Description                                                                                            |
+| ------------- | ---------------- | ---------------- |------------- | --------------------------------------------------------------------------------------- |
+| shallowClone  | any              | any              | a function for shallow cloning majority JS data structure       |                                                                                            
+| shallowCompare| any, any         | boolean          | a function for shallow compare by each key of object |
+| bound         | Function, ClassMethodDecoratorContext          | void             | a Typescript Method level Decorator for binding class method to instance |
+| isPrimitive   | any              | boolean          | a function to judge a value is a primitive type or not |
+| isObject      | any              | boolean          | a function to judge a value is a reference type or not |
