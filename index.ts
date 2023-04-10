@@ -1,26 +1,28 @@
 import { Collection, fromJS, is, isImmutable, Map } from "immutable";
-import { ConnectivityImpl } from "./main/connectivity";
 import {
+  Any,
   BS,
   CloneFunction,
   CloneFunctionMap,
   Comparator,
   ComparatorMap,
   Connectivity,
-  NRSConfig,
-  RxNStore,
-  RxImStore,
-  Subscribable,
   IBS,
   ImmutableBase,
+  NRSConfig,
   ReactiveConfig,
+  RxImStore,
+  RxNStore,
+  RxStore,
+  Subscribable,
 } from "rx-store-types";
+import { ConnectivityImpl } from "./main/connectivity";
+import { bound } from "./main/decorators/bound";
 import { RxStoreImpl } from "./main/rs";
+import { isObject } from "./main/util/isObject";
 import { isPrimitive } from "./main/util/isPrimitive";
 import { shallowClone } from "./main/util/shallowClone";
 import { shallowCompare } from "./main/util/shallowCompare";
-import { bound } from "./main/decorators/bound";
-import { isObject } from "./main/util/isObject";
 
 class RxNStoreImpl<S extends BS>
   extends RxStoreImpl<S>
@@ -112,20 +114,23 @@ export function NRS<S extends BS>(
     config,
   }: Partial<NRSConfig<S>> = {}
 ) {
-  return new RxNStoreImpl(
+
+  const nStore = new RxNStoreImpl(
     new ConnectivityImpl(initiator, config),
     cloneFunction,
     cloneFunctionMap,
     comparator,
     comparatorMap
   );
+  Object.keys(initiator).forEach((key) => initiator[key](nStore as unknown as RxStore<Any> & Subscribable<Any>))
+  return nStore;
 }
 
 class RxImStoreImpl<S extends IBS>
   extends RxStoreImpl<S>
   implements Subscribable<S>, RxImStore<S>
 {
-  constructor(connector: Connectivity<S>, config?: ReactiveConfig) {
+  constructor(connector: Connectivity<S>) {
     super(
       connector,
       <IData extends ImmutableBase>(prev: IData, next: IData) => {
@@ -165,7 +170,10 @@ class RxImStoreImpl<S extends IBS>
 }
 
 export function IRS<S extends IBS>(initiator: S, config?: ReactiveConfig) {
-  return new RxImStoreImpl(new ConnectivityImpl(initiator, config));
+  const iStore = new RxImStoreImpl(new ConnectivityImpl(initiator, config));
+  Object.keys(initiator).forEach((key) => initiator[key](iStore as unknown as RxStore<Any> & Subscribable<Any>))
+  return iStore;
 }
 
 export { shallowClone, shallowCompare, bound, isPrimitive, isObject };
+

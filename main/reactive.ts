@@ -18,7 +18,7 @@ export class ReactiveImpl<S extends BS> implements Reactive<S> {
   private init({ fireOnCreate, schedule }: ReactiveConfig) {
     const keys = Object.keys(this.initiator) as Array<keyof S>;
     const initData = keys.reduce((acc, next) => {
-      acc[next] = this.initiator[next](this);
+      acc[next] = this.initiator[next]();
       return acc;
     }, {} as { [K in keyof S]: ReturnType<S[K]> });
 
