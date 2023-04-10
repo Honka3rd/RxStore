@@ -33,7 +33,7 @@ var ReactiveImpl = /** @class */ (function () {
         var fireOnCreate = _a.fireOnCreate, schedule = _a.schedule;
         var keys = Object.keys(this.initiator);
         var initData = keys.reduce(function (acc, next) {
-            acc[next] = _this.initiator[next](_this);
+            acc[next] = _this.initiator[next]();
             return acc;
         }, {});
         if (schedule === "async") {

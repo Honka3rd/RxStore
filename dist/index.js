@@ -64,17 +64,17 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.isObject = exports.isPrimitive = exports.bound = exports.shallowCompare = exports.shallowClone = exports.IRS = exports.NRS = void 0;
 var immutable_1 = require("immutable");
 var connectivity_1 = require("./main/connectivity");
+var bound_1 = require("./main/decorators/bound");
+Object.defineProperty(exports, "bound", { enumerable: true, get: function () { return bound_1.bound; } });
 var rs_1 = require("./main/rs");
+var isObject_1 = require("./main/util/isObject");
+Object.defineProperty(exports, "isObject", { enumerable: true, get: function () { return isObject_1.isObject; } });
 var isPrimitive_1 = require("./main/util/isPrimitive");
 Object.defineProperty(exports, "isPrimitive", { enumerable: true, get: function () { return isPrimitive_1.isPrimitive; } });
 var shallowClone_1 = require("./main/util/shallowClone");
 Object.defineProperty(exports, "shallowClone", { enumerable: true, get: function () { return shallowClone_1.shallowClone; } });
 var shallowCompare_1 = require("./main/util/shallowCompare");
 Object.defineProperty(exports, "shallowCompare", { enumerable: true, get: function () { return shallowCompare_1.shallowCompare; } });
-var bound_1 = require("./main/decorators/bound");
-Object.defineProperty(exports, "bound", { enumerable: true, get: function () { return bound_1.bound; } });
-var isObject_1 = require("./main/util/isObject");
-Object.defineProperty(exports, "isObject", { enumerable: true, get: function () { return isObject_1.isObject; } });
 var RxNStoreImpl = function () {
     var _a;
     var _instanceExtraInitializers = [];
@@ -161,7 +161,9 @@ var RxNStoreImpl = function () {
 }();
 function NRS(initiator, _a) {
     var _b = _a === void 0 ? {} : _a, cloneFunction = _b.cloneFunction, cloneFunctionMap = _b.cloneFunctionMap, comparator = _b.comparator, comparatorMap = _b.comparatorMap, config = _b.config;
-    return new RxNStoreImpl(new connectivity_1.ConnectivityImpl(initiator, config), cloneFunction, cloneFunctionMap, comparator, comparatorMap);
+    var nStore = new RxNStoreImpl(new connectivity_1.ConnectivityImpl(initiator, config), cloneFunction, cloneFunctionMap, comparator, comparatorMap);
+    Object.keys(initiator).forEach(function (key) { return initiator[key](nStore); });
+    return nStore;
 }
 exports.NRS = NRS;
 var RxImStoreImpl = function () {
@@ -173,7 +175,7 @@ var RxImStoreImpl = function () {
     var _getDefaultAll_decorators;
     return _a = /** @class */ (function (_super) {
             __extends(RxImStoreImpl, _super);
-            function RxImStoreImpl(connector, config) {
+            function RxImStoreImpl(connector) {
                 var _this = _super.call(this, connector, function (prev, next) {
                     if ((0, immutable_1.isImmutable)(prev) && (0, immutable_1.isImmutable)(next)) {
                         return (0, immutable_1.is)(prev, next);
@@ -210,6 +212,8 @@ var RxImStoreImpl = function () {
         _a;
 }();
 function IRS(initiator, config) {
-    return new RxImStoreImpl(new connectivity_1.ConnectivityImpl(initiator, config));
+    var iStore = new RxImStoreImpl(new connectivity_1.ConnectivityImpl(initiator, config));
+    Object.keys(initiator).forEach(function (key) { return initiator[key](iStore); });
+    return iStore;
 }
 exports.IRS = IRS;
