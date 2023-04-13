@@ -133,7 +133,7 @@ class RxImStoreImpl<S extends IBS>
   constructor(connector: Connectivity<S>) {
     super(
       connector,
-      <IData extends ImmutableBase>(prev: IData, next: IData) => {
+      (prev: any, next: any) => {
         if (isImmutable(prev) && isImmutable(next)) {
           return is(prev, next);
         }

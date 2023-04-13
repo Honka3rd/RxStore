@@ -1,6 +1,6 @@
 # RxStore Core
 
-An Rxjs based Type-safe state management tool
+A Rxjs based Type-safe state management tool
 (JavaScript Environment Independent)
 
 ## Install
