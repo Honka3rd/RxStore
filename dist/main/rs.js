@@ -40,7 +40,6 @@ var computed_1 = require("./computed");
 var dispatcher_1 = require("./dispatcher");
 var objectShallowCompareFactory_1 = require("./util/objectShallowCompareFactory");
 var shallowCompare_1 = require("./util/shallowCompare");
-var rxjs_1 = require("rxjs");
 var bound_1 = require("./decorators/bound");
 var RxStoreImpl = exports.RxStoreImpl = function () {
     var _a;
@@ -60,7 +59,6 @@ var RxStoreImpl = exports.RxStoreImpl = function () {
     var _createAsyncDispatch_decorators;
     var _withComputation_decorators;
     var _withAsyncComputation_decorators;
-    var _children_decorators;
     return _a = /** @class */ (function () {
             function RxStoreImpl(connector, comparator, comparatorMap) {
                 this.connector = (__runInitializers(this, _instanceExtraInitializers), connector);
@@ -146,57 +144,6 @@ var RxStoreImpl = exports.RxStoreImpl = function () {
             RxStoreImpl.prototype.withAsyncComputation = function (params) {
                 return new computed_1.ComputedAsyncImpl(params.computation, this.connector, params.keys, params.comparator, params.onStart, params.onError, params.onSuccess, params.onComplete);
             };
-            RxStoreImpl.prototype.children = function (selectors) {
-                var _this = this;
-                var utilities = {
-                    setParentState: function (key, value) {
-                        var _a;
-                        if (_this.connector.getAllKeys().includes(key)) {
-                            _this.setState((_a = {}, _a[key] = value, _a));
-                            return true;
-                        }
-                        return false;
-                    },
-                    observeParentStates: function (observer) {
-                        return _this.observeMultiple(selectors, observer);
-                    },
-                    observeParentState: function (key, observer) {
-                        if (!_this.connector.getAllKeys().includes(key)) {
-                            return;
-                        }
-                        return _this.observe(key, observer);
-                    },
-                    getParentState: function (key) {
-                        if (!_this.connector.getAllKeys().includes(key)) {
-                            return;
-                        }
-                        return _this.getState(key);
-                    },
-                    getParentDefault: function (key) {
-                        if (!_this.connector.getAllKeys().includes(key)) {
-                            return;
-                        }
-                        return _this.getDefault(key);
-                    },
-                    comparator: this.comparator,
-                    parentComparatorMap: this.comparatorMap
-                        ? selectors.reduce(function (acc, next) {
-                            var _a;
-                            acc[next] = (_a = _this.comparatorMap) === null || _a === void 0 ? void 0 : _a[next];
-                            return acc;
-                        }, {})
-                        : {},
-                };
-                return [
-                    utilities,
-                    this.getDataSource().pipe((0, rxjs_1.map)(function (states) {
-                        return selectors.reduce(function (acc, next) {
-                            acc[next] = states[next];
-                            return acc;
-                        }, {});
-                    }), (0, rxjs_1.distinctUntilChanged)(this.objectCompare)),
-                ];
-            };
             return RxStoreImpl;
         }()),
         (function () {
@@ -215,7 +162,6 @@ var RxStoreImpl = exports.RxStoreImpl = function () {
             _createAsyncDispatch_decorators = [bound_1.bound];
             _withComputation_decorators = [bound_1.bound];
             _withAsyncComputation_decorators = [bound_1.bound];
-            _children_decorators = [bound_1.bound];
             __esDecorate(_a, null, _observe_decorators, { kind: "method", name: "observe", static: false, private: false, access: { has: function (obj) { return "observe" in obj; }, get: function (obj) { return obj.observe; } } }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _observeMultiple_decorators, { kind: "method", name: "observeMultiple", static: false, private: false, access: { has: function (obj) { return "observeMultiple" in obj; }, get: function (obj) { return obj.observeMultiple; } } }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _observeAll_decorators, { kind: "method", name: "observeAll", static: false, private: false, access: { has: function (obj) { return "observeAll" in obj; }, get: function (obj) { return obj.observeAll; } } }, null, _instanceExtraInitializers);
@@ -231,7 +177,6 @@ var RxStoreImpl = exports.RxStoreImpl = function () {
             __esDecorate(_a, null, _createAsyncDispatch_decorators, { kind: "method", name: "createAsyncDispatch", static: false, private: false, access: { has: function (obj) { return "createAsyncDispatch" in obj; }, get: function (obj) { return obj.createAsyncDispatch; } } }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _withComputation_decorators, { kind: "method", name: "withComputation", static: false, private: false, access: { has: function (obj) { return "withComputation" in obj; }, get: function (obj) { return obj.withComputation; } } }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _withAsyncComputation_decorators, { kind: "method", name: "withAsyncComputation", static: false, private: false, access: { has: function (obj) { return "withAsyncComputation" in obj; }, get: function (obj) { return obj.withAsyncComputation; } } }, null, _instanceExtraInitializers);
-            __esDecorate(_a, null, _children_decorators, { kind: "method", name: "children", static: false, private: false, access: { has: function (obj) { return "children" in obj; }, get: function (obj) { return obj.children; } } }, null, _instanceExtraInitializers);
         })(),
         _a;
 }();

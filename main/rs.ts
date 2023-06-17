@@ -16,7 +16,6 @@ import { ComputedAsyncImpl, ComputedImpl } from "./computed";
 import { AsyncDispatcherImpl, DispatcherImpl } from "./dispatcher";
 import { objectShallowCompareF } from "./util/objectShallowCompareFactory";
 import { shallowCompare } from "./util/shallowCompare";
-import { distinctUntilChanged, map } from "rxjs";
 import { bound } from "./decorators/bound";
 
 export class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
@@ -212,66 +211,5 @@ export class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
       params.onSuccess,
       params.onComplete
     );
-  }
-
-  @bound
-  children<K extends (keyof S)[]>(selectors: K) {
-    const utilities = {
-      setParentState: <KK extends K[number]>(
-        key: KK,
-        value: ReturnType<S[KK]>
-      ) => {
-        if (this.connector.getAllKeys().includes(key)) {
-          this.setState({ [key]: value } as {});
-          return true;
-        }
-        return false;
-      },
-      observeParentStates: (
-        observer: (result: Record<K[number], ReturnType<S[K[number]]>>) => void
-      ) => {
-        return this.observeMultiple(selectors, observer);
-      },
-      observeParentState: <KK extends K[number]>(
-        key: KK,
-        observer: (result: ReturnType<S[KK]>) => void
-      ) => {
-        if (!this.connector.getAllKeys().includes(key)) {
-          return;
-        }
-        return this.observe(key, observer);
-      },
-      getParentState: <KK extends K[number]>(key: KK) => {
-        if (!this.connector.getAllKeys().includes(key)) {
-          return;
-        }
-        return this.getState(key);
-      },
-      getParentDefault: <KK extends K[number]>(key: KK) => {
-        if (!this.connector.getAllKeys().includes(key)) {
-          return;
-        }
-        return this.getDefault(key);
-      },
-      comparator: this.comparator as Comparator<ReturnType<S[K[number]]>>,
-      parentComparatorMap: this.comparatorMap
-        ? selectors.reduce((acc, next) => {
-            acc[next] = this.comparatorMap?.[next];
-            return acc;
-          }, {} as Partial<ComparatorMap<S>>)
-        : ({} as Partial<ComparatorMap<S>>),
-    };
-    return [
-      utilities,
-      this.getDataSource().pipe(
-        map((states) =>
-          selectors.reduce((acc, next) => {
-            acc[next] = states[next];
-            return acc;
-          }, {} as Partial<{ [K in keyof S]: ReturnType<S[K]> }>)
-        ),
-        distinctUntilChanged(this.objectCompare)
-      ),
-    ] as const;
   }
 }
