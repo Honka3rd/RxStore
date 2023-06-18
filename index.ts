@@ -24,7 +24,7 @@ import { isPrimitive } from "./main/util/isPrimitive";
 import { shallowClone } from "./main/util/shallowClone";
 import { shallowCompare } from "./main/util/shallowCompare";
 
-class RxNStoreImpl<S extends BS>
+export class RxNStoreImpl<S extends BS>
   extends RxStoreImpl<S>
   implements Subscribable<S>, RxNStore<S>
 {
@@ -126,7 +126,7 @@ export function NRS<S extends BS>(
   return nStore;
 }
 
-class RxImStoreImpl<S extends IBS>
+export class RxImStoreImpl<S extends IBS>
   extends RxStoreImpl<S>
   implements Subscribable<S>, RxImStore<S>
 {

@@ -61,7 +61,7 @@ var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, 
 };
 var _this = this;
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.isObject = exports.isPrimitive = exports.bound = exports.shallowCompare = exports.shallowClone = exports.IRS = exports.NRS = void 0;
+exports.isObject = exports.isPrimitive = exports.bound = exports.shallowCompare = exports.shallowClone = exports.IRS = exports.RxImStoreImpl = exports.NRS = exports.RxNStoreImpl = void 0;
 var immutable_1 = require("immutable");
 var connectivity_1 = require("./main/connectivity");
 var bound_1 = require("./main/decorators/bound");
@@ -75,7 +75,7 @@ var shallowClone_1 = require("./main/util/shallowClone");
 Object.defineProperty(exports, "shallowClone", { enumerable: true, get: function () { return shallowClone_1.shallowClone; } });
 var shallowCompare_1 = require("./main/util/shallowCompare");
 Object.defineProperty(exports, "shallowCompare", { enumerable: true, get: function () { return shallowCompare_1.shallowCompare; } });
-var RxNStoreImpl = function () {
+var RxNStoreImpl = exports.RxNStoreImpl = function () {
     var _a;
     var _instanceExtraInitializers = [];
     var _getClonedState_decorators;
@@ -97,7 +97,8 @@ var RxNStoreImpl = function () {
                 return _this;
             }
             RxNStoreImpl.prototype.getClonedState = function (key) {
-                var _a = this, cloneFunction = _a.cloneFunction, cloneFunctionMap = _a.cloneFunctionMap;
+                var _a;
+                var cloneFunction = (_a = this, _a.cloneFunction), cloneFunctionMap = _a.cloneFunctionMap;
                 var cloneFn = cloneFunctionMap === null || cloneFunctionMap === void 0 ? void 0 : cloneFunctionMap[key];
                 if (cloneFn) {
                     return cloneFn(this.getState(key));
@@ -166,7 +167,7 @@ function NRS(initiator, _a) {
     return nStore;
 }
 exports.NRS = NRS;
-var RxImStoreImpl = function () {
+var RxImStoreImpl = exports.RxImStoreImpl = function () {
     var _a;
     var _instanceExtraInitializers_1 = [];
     var _getStateAll_decorators;

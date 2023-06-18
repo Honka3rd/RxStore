@@ -6,7 +6,7 @@ import { isObject } from "./main/util/isObject";
 import { isPrimitive } from "./main/util/isPrimitive";
 import { shallowClone } from "./main/util/shallowClone";
 import { shallowCompare } from "./main/util/shallowCompare";
-declare class RxNStoreImpl<S extends BS> extends RxStoreImpl<S> implements Subscribable<S>, RxNStore<S> {
+export declare class RxNStoreImpl<S extends BS> extends RxStoreImpl<S> implements Subscribable<S>, RxNStore<S> {
     cloneFunction?: CloneFunction<ReturnType<S[keyof S]>> | undefined;
     private cloneFunctionMap?;
     constructor(connector: Connectivity<S>, cloneFunction?: CloneFunction<ReturnType<S[keyof S]>> | undefined, cloneFunctionMap?: Partial<{ [K in keyof S]: CloneFunction<ReturnType<S[K]>>; }> | undefined, comparator?: Comparator<ReturnType<S[keyof S]>>, comparatorMap?: ComparatorMap<S>);
@@ -25,7 +25,7 @@ declare class RxNStoreImpl<S extends BS> extends RxStoreImpl<S> implements Subsc
     getCloneFunctionMap(): Partial<{ [K in keyof S]: Comparator<ReturnType<S[K]>>; }>;
 }
 export declare function NRS<S extends BS>(initiator: S, { cloneFunction, cloneFunctionMap, comparator, comparatorMap, config, }?: Partial<NRSConfig<S>>): RxNStoreImpl<S>;
-declare class RxImStoreImpl<S extends IBS> extends RxStoreImpl<S> implements Subscribable<S>, RxImStore<S> {
+export declare class RxImStoreImpl<S extends IBS> extends RxStoreImpl<S> implements Subscribable<S>, RxImStore<S> {
     constructor(connector: Connectivity<S>);
     getStateAll(): Map<keyof S, ReturnType<S[keyof S]>>;
     getStates<KS extends keyof S>(keys: KS[]): Map<KS, ReturnType<S[KS]>>;
