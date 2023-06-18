@@ -43,15 +43,13 @@ export declare class RxStoreImpl<S extends BS> implements Subscribable<S>, RxSto
         reducer: AsyncReducer<T, P, S, K>;
         key: K;
     }): AsyncDispatch<P, T, S, K>;
-    withComputation<R, KS extends keyof S>(params: {
-        computation: Computation<R, S, KS>;
-        keys: KS[];
-    }): ComputedImpl<R, S, KS>;
-    withAsyncComputation<R, KS extends keyof S>(params: {
-        computation: ComputationAsync<R, S, KS>;
-        keys: KS[];
+    withComputation<R>(params: {
+        computation: Computation<R, S>;
+    }): ComputedImpl<R, S>;
+    withAsyncComputation<R>(params: {
+        computation: ComputationAsync<R, S>;
         comparator?: Comparator<{
-            [K in KS]: ReturnType<S[K]>;
+            [K in keyof S]: ReturnType<S[K]>;
         }>;
         onStart?: (val: {
             [K in keyof S]: ReturnType<S[K]>;
@@ -59,5 +57,6 @@ export declare class RxStoreImpl<S extends BS> implements Subscribable<S>, RxSto
         onError?: (err: any) => void;
         onSuccess?: (result: R) => void;
         onComplete?: () => void;
-    }): ComputedAsyncImpl<R, S, KS>;
+        lazy?: boolean;
+    }): ComputedAsyncImpl<R, S>;
 }

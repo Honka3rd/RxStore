@@ -1,6 +1,7 @@
 import {
   catchError,
   distinctUntilChanged,
+  exhaustMap,
   from,
   map,
   of,
@@ -20,17 +21,16 @@ import {
 } from "rx-store-types";
 import { bound } from "./decorators/bound";
 
-export class ComputedImpl<R, S extends BS, KS extends keyof S>
-  implements Computed<R, S, KS>
+export class ComputedImpl<R, S extends BS>
+  implements Computed<R, S>
 {
-  readonly computation: Computation<R, S, KS>;
+  readonly computation: Computation<R, S>;
   private computed: R;
 
   constructor(
-    computation: Computation<R, S, KS>,
+    computation: Computation<R, S>,
     private subscribable: Connectivity<S>,
-    private keys: Array<KS>,
-    private comparator?: Comparator<{ [K in KS]: ReturnType<S[K]> }>
+    private comparator?: Comparator<{ [K in keyof S]: ReturnType<S[K]> }>
   ) {
     this.computation = computation;
     this.computed = this.computation(subscribable.getDefaultAll());
@@ -43,8 +43,7 @@ export class ComputedImpl<R, S extends BS, KS extends keyof S>
 
   @bound
   observe(observer: (r: R) => void) {
-    return this.subscribable.observeMultiple(
-      this.keys,
+    return this.subscribable.observeAll(
       (states) => {
         const value = this.computation(states);
         this.computed = value;
@@ -55,18 +54,18 @@ export class ComputedImpl<R, S extends BS, KS extends keyof S>
   }
 }
 
-export class ComputedAsyncImpl<R, S extends BS, KS extends keyof S>
-  implements ComputedAsync<R, S, KS>
+export class ComputedAsyncImpl<R, S extends BS>
+  implements ComputedAsync<R, S>
 {
-  readonly computation: ComputationAsync<R, S, KS>;
+  readonly computation: ComputationAsync<R, S>;
   private computed?: R;
   private state: AsyncStates = AsyncStates.PENDING;
 
   constructor(
-    computation: ComputationAsync<R, S, KS>,
+    computation: ComputationAsync<R, S>,
     private subscribable: Connectivity<S>,
-    private keys: Array<KS>,
-    private comparator?: Comparator<{ [K in KS]: ReturnType<S[K]> }>,
+    private lazy: boolean,
+    private comparator?: Comparator<{ [K in keyof S]: ReturnType<S[K]> }>,
     private onStart?: (val: { [K in keyof S]: ReturnType<S[K]> }) => void,
     private onError?: (err: any) => void,
     private onSuccess?: (result: R) => void,
@@ -85,6 +84,7 @@ export class ComputedAsyncImpl<R, S extends BS, KS extends keyof S>
 
   @bound
   observe(observer: (r: AsyncResponse<R>) => void) {
+    const connect = this.lazy ? exhaustMap : switchMap;
     const subscription = this.subscribable
       .source()
       .pipe(
@@ -92,14 +92,8 @@ export class ComputedAsyncImpl<R, S extends BS, KS extends keyof S>
           this.state = AsyncStates.PENDING;
           this.onStart?.(val);
         }),
-        map((val) => {
-          return this.keys.reduce((acc, next) => {
-            acc[next] = val[next];
-            return acc;
-          }, {} as { [K in KS]: ReturnType<S[K]> });
-        }),
         distinctUntilChanged(this.comparator),
-        switchMap((states) => {
+        connect((states) => {
           const asyncReturn = this.computation(states);
           const async$ =
             asyncReturn instanceof Promise ? from(asyncReturn) : asyncReturn;

@@ -45,9 +45,8 @@ var ComputedImpl = exports.ComputedImpl = function () {
     var _get_decorators;
     var _observe_decorators;
     return _a = /** @class */ (function () {
-            function ComputedImpl(computation, subscribable, keys, comparator) {
+            function ComputedImpl(computation, subscribable, comparator) {
                 this.subscribable = (__runInitializers(this, _instanceExtraInitializers), subscribable);
-                this.keys = keys;
                 this.comparator = comparator;
                 this.computation = computation;
                 this.computed = this.computation(subscribable.getDefaultAll());
@@ -57,7 +56,7 @@ var ComputedImpl = exports.ComputedImpl = function () {
             };
             ComputedImpl.prototype.observe = function (observer) {
                 var _this = this;
-                return this.subscribable.observeMultiple(this.keys, function (states) {
+                return this.subscribable.observeAll(function (states) {
                     var value = _this.computation(states);
                     _this.computed = value;
                     observer(value);
@@ -79,9 +78,9 @@ var ComputedAsyncImpl = exports.ComputedAsyncImpl = function () {
     var _get_decorators;
     var _observe_decorators;
     return _a = /** @class */ (function () {
-            function ComputedAsyncImpl(computation, subscribable, keys, comparator, onStart, onError, onSuccess, onComplete) {
+            function ComputedAsyncImpl(computation, subscribable, lazy, comparator, onStart, onError, onSuccess, onComplete) {
                 this.subscribable = (__runInitializers(this, _instanceExtraInitializers_1), subscribable);
-                this.keys = keys;
+                this.lazy = lazy;
                 this.comparator = comparator;
                 this.onStart = onStart;
                 this.onError = onError;
@@ -98,18 +97,14 @@ var ComputedAsyncImpl = exports.ComputedAsyncImpl = function () {
             };
             ComputedAsyncImpl.prototype.observe = function (observer) {
                 var _this = this;
+                var connect = this.lazy ? rxjs_1.exhaustMap : rxjs_1.switchMap;
                 var subscription = this.subscribable
                     .source()
                     .pipe((0, rxjs_1.tap)(function (val) {
                     var _a;
                     _this.state = rx_store_types_1.AsyncStates.PENDING;
                     (_a = _this.onStart) === null || _a === void 0 ? void 0 : _a.call(_this, val);
-                }), (0, rxjs_1.map)(function (val) {
-                    return _this.keys.reduce(function (acc, next) {
-                        acc[next] = val[next];
-                        return acc;
-                    }, {});
-                }), (0, rxjs_1.distinctUntilChanged)(this.comparator), (0, rxjs_1.switchMap)(function (states) {
+                }), (0, rxjs_1.distinctUntilChanged)(this.comparator), connect(function (states) {
                     var asyncReturn = _this.computation(states);
                     var async$ = asyncReturn instanceof Promise ? (0, rxjs_1.from)(asyncReturn) : asyncReturn;
                     return async$.pipe((0, rxjs_1.map)(function (result) {

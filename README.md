@@ -292,7 +292,7 @@ observe("complex", console.log);
 
 **_Observable computation_**
 
-sometimes we want a reduced or mapped value from our defined data in store
+sometimes we want a computed value from our defined data in store
 
 example
 
@@ -302,7 +302,6 @@ const { withComputation } = NRS({
 });
 
 const compute = withComputation({
-  keys: ["height"],
   computation: ({ height }) => {
     return height * 2;
   },
@@ -326,8 +325,6 @@ sometimes the computation might not immediately computed, we can return an Obser
 
 the argument of "withAsyncComputation" is a configurable object containing
 
-keys: the variable names you defined in store
-
 and functions below:
 
 | Function      | Argument         | Return           | Required     | Description                                                                                               |
@@ -348,7 +345,6 @@ const { withAsyncComputation } = NRS({
 });
 
 const compute = withAsyncComputation({
-  keys: ["height"], // keys you defined in NRS or IRS
   computation: ({ height }) => {
     return timer(1000).pipe(map(() => height * 2));
   },
@@ -382,7 +378,7 @@ fire on create: the default can be observed if set to true
 example:
 
 ```javascript
-const { withComputation } = NRS(
+NRS(
   {
     height: () => 0,
   },

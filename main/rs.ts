@@ -179,32 +179,30 @@ export class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
   }
 
   @bound
-  withComputation<R, KS extends keyof S>(params: {
-    computation: Computation<R, S, KS>;
-    keys: KS[];
+  withComputation<R>(params: {
+    computation: Computation<R, S>;
   }) {
     return new ComputedImpl(
       params.computation,
       this.connector,
-      params.keys,
       this.comparator
     );
   }
 
   @bound
-  withAsyncComputation<R, KS extends keyof S>(params: {
-    computation: ComputationAsync<R, S, KS>;
-    keys: KS[];
-    comparator?: Comparator<{ [K in KS]: ReturnType<S[K]> }>;
+  withAsyncComputation<R>(params: {
+    computation: ComputationAsync<R, S>;
+    comparator?: Comparator<{ [K in keyof S]: ReturnType<S[K]> }>;
     onStart?: (val: { [K in keyof S]: ReturnType<S[K]> }) => void;
     onError?: (err: any) => void;
     onSuccess?: (result: R) => void;
-    onComplete?: () => void
+    onComplete?: () => void;
+    lazy?: boolean;
   }) {
     return new ComputedAsyncImpl(
       params.computation,
       this.connector,
-      params.keys,
+      Boolean(params.lazy),
       params.comparator,
       params.onStart,
       params.onError,
