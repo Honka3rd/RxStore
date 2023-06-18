@@ -11,6 +11,7 @@ import {
   Reducer,
   RxStore,
   Subscribable,
+  AsyncComputeConfig,
 } from "rx-store-types";
 import { ComputedAsyncImpl, ComputedImpl } from "./computed";
 import { AsyncDispatcherImpl, DispatcherImpl } from "./dispatcher";
@@ -181,29 +182,29 @@ export class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
   @bound
   withComputation<R>(params: {
     computation: Computation<R, S>;
+    comparator?: Comparator<{
+      [K in keyof S]: ReturnType<S[K]>;
+    }>;
   }) {
     return new ComputedImpl(
       params.computation,
       this.connector,
-      this.comparator
+      params.comparator ? params.comparator : this.comparator
     );
   }
 
   @bound
-  withAsyncComputation<R>(params: {
-    computation: ComputationAsync<R, S>;
-    comparator?: Comparator<{ [K in keyof S]: ReturnType<S[K]> }>;
-    onStart?: (val: { [K in keyof S]: ReturnType<S[K]> }) => void;
-    onError?: (err: any) => void;
-    onSuccess?: (result: R) => void;
-    onComplete?: () => void;
-    lazy?: boolean;
-  }) {
+  withAsyncComputation<R>(
+    params: {
+      computation: ComputationAsync<R, S>;
+      comparator?: Comparator<{ [K in keyof S]: ReturnType<S[K]> }>;
+    } & AsyncComputeConfig<S, R>
+  ) {
     return new ComputedAsyncImpl(
       params.computation,
       this.connector,
       Boolean(params.lazy),
-      params.comparator,
+      params.comparator ? params.comparator : this.comparator,
       params.onStart,
       params.onError,
       params.onSuccess,

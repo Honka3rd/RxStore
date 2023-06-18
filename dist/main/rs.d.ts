@@ -1,4 +1,4 @@
-import { AsyncReducer, AsyncDispatch, BS, Comparator, Computation, ComputationAsync, Connectivity, Dispatch, Reducer, RxStore, Subscribable } from "rx-store-types";
+import { AsyncReducer, AsyncDispatch, BS, Comparator, Computation, ComputationAsync, Connectivity, Dispatch, Reducer, RxStore, Subscribable, AsyncComputeConfig } from "rx-store-types";
 import { ComputedAsyncImpl, ComputedImpl } from "./computed";
 export declare class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
     protected connector: Connectivity<S>;
@@ -45,18 +45,14 @@ export declare class RxStoreImpl<S extends BS> implements Subscribable<S>, RxSto
     }): AsyncDispatch<P, T, S, K>;
     withComputation<R>(params: {
         computation: Computation<R, S>;
+        comparator?: Comparator<{
+            [K in keyof S]: ReturnType<S[K]>;
+        }>;
     }): ComputedImpl<R, S>;
     withAsyncComputation<R>(params: {
         computation: ComputationAsync<R, S>;
         comparator?: Comparator<{
             [K in keyof S]: ReturnType<S[K]>;
         }>;
-        onStart?: (val: {
-            [K in keyof S]: ReturnType<S[K]>;
-        }) => void;
-        onError?: (err: any) => void;
-        onSuccess?: (result: R) => void;
-        onComplete?: () => void;
-        lazy?: boolean;
-    }): ComputedAsyncImpl<R, S>;
+    } & AsyncComputeConfig<S, R>): ComputedAsyncImpl<R, S>;
 }
