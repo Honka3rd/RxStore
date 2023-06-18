@@ -354,7 +354,7 @@ const compute = withAsyncComputation({
 compute.observe((h) => {
   console.log(h);
   // should log 84 after 1 second
-});
+}, onPending // optional, fire on start async process);
 
 setState({ height: 42 });
 

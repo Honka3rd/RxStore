@@ -21,9 +21,7 @@ import {
 } from "rx-store-types";
 import { bound } from "./decorators/bound";
 
-export class ComputedImpl<R, S extends BS>
-  implements Computed<R, S>
-{
+export class ComputedImpl<R, S extends BS> implements Computed<R, S> {
   readonly computation: Computation<R, S>;
   private computed: R;
 
@@ -43,20 +41,15 @@ export class ComputedImpl<R, S extends BS>
 
   @bound
   observe(observer: (r: R) => void) {
-    return this.subscribable.observeAll(
-      (states) => {
-        const value = this.computation(states);
-        this.computed = value;
-        observer(value);
-      },
-      this.comparator
-    );
+    return this.subscribable.observeAll((states) => {
+      const value = this.computation(states);
+      this.computed = value;
+      observer(value);
+    }, this.comparator);
   }
 }
 
-export class ComputedAsyncImpl<R, S extends BS>
-  implements ComputedAsync<R, S>
-{
+export class ComputedAsyncImpl<R, S extends BS> implements ComputedAsync<R, S> {
   readonly computation: ComputationAsync<R, S>;
   private computed?: R;
   private state: AsyncStates = AsyncStates.PENDING;
@@ -83,13 +76,14 @@ export class ComputedAsyncImpl<R, S extends BS>
   }
 
   @bound
-  observe(observer: (r: AsyncResponse<R>) => void) {
+  observe(observer: (r: AsyncResponse<R>) => void, onPending?: Function) {
     const connect = this.lazy ? exhaustMap : switchMap;
     const subscription = this.subscribable
       .source()
       .pipe(
         tap((val) => {
           this.state = AsyncStates.PENDING;
+          onPending?.();
           this.onStart?.(val);
         }),
         distinctUntilChanged(this.comparator),
@@ -124,7 +118,7 @@ export class ComputedAsyncImpl<R, S extends BS>
       )
       .subscribe({
         next: observer,
-        complete: this.onComplete
+        complete: this.onComplete,
       });
     return () => subscription.unsubscribe();
   }

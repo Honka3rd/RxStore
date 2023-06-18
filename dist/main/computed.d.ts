@@ -24,5 +24,5 @@ export declare class ComputedAsyncImpl<R, S extends BS> implements ComputedAsync
         state: AsyncStates;
         value: R | undefined;
     };
-    observe(observer: (r: AsyncResponse<R>) => void): () => void;
+    observe(observer: (r: AsyncResponse<R>) => void, onPending?: Function): () => void;
 }
