@@ -9,6 +9,9 @@ export const objectShallowCompareF =
     comparatorMap?: ComparatorMap<any>
   ) =>
   (o1: T, o2: T) => {
+    if (Object.getPrototypeOf(o1) !== Object.getPrototypeOf(o2)) {
+      return false;
+    }
     const ownKeysO1 = Object.getOwnPropertyNames(o1);
     const ownKeysO2 = Object.getOwnPropertyNames(o2);
     if (ownKeysO1.length !== ownKeysO2.length) {
