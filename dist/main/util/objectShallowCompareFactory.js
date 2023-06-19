@@ -4,9 +4,6 @@ exports.objectShallowCompareF = void 0;
 var objectShallowCompareF = function (comparator, comparatorMap) {
     if (comparator === void 0) { comparator = function (o1, o2) { return o1 === o2; }; }
     return function (o1, o2) {
-        if (Object.getPrototypeOf(o1) !== Object.getPrototypeOf(o2)) {
-            return false;
-        }
         var ownKeysO1 = Object.getOwnPropertyNames(o1);
         var ownKeysO2 = Object.getOwnPropertyNames(o2);
         if (ownKeysO1.length !== ownKeysO2.length) {
