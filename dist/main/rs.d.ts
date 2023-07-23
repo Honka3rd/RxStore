@@ -35,14 +35,14 @@ export declare class RxStoreImpl<S extends BS> implements Subscribable<S>, RxSto
     resetMultiple<KS extends (keyof S)[]>(keys: KS): this;
     resetAll(): this;
     getDataSource(): import("rxjs").Observable<{ [K in keyof S]: ReturnType<S[K]>; }>;
-    createDispatch<K extends keyof S, T, P = void>(params: {
-        reducer: Reducer<T, P, S, K>;
+    createDispatch<K extends keyof S, T extends string>(params: {
+        reducer: Reducer<T, S, K>;
         key: K;
-    }): Dispatch<P, T>;
-    createAsyncDispatch<K extends keyof S, T, P = void>(params: {
-        reducer: AsyncReducer<T, P, S, K>;
+    }): Dispatch<ReturnType<S[K]>, T>;
+    createAsyncDispatch<K extends keyof S, T extends string>(params: {
+        reducer: AsyncReducer<T, S, K>;
         key: K;
-    }): AsyncDispatch<P, T, S, K>;
+    }): AsyncDispatch<T, S, K>;
     withComputation<R>(params: {
         computation: Computation<R, S>;
         comparator?: Comparator<{

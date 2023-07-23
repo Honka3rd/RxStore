@@ -162,20 +162,20 @@ export class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
   }
 
   @bound
-  createDispatch<K extends keyof S, T, P = void>(params: {
-    reducer: Reducer<T, P, S, K>;
+  createDispatch<K extends keyof S, T extends string>(params: {
+    reducer: Reducer<T, S, K>;
     key: K;
-  }): Dispatch<P, T> {
-    return new DispatcherImpl<S, K, T, P>(params.reducer, this, params.key)
+  }): Dispatch<ReturnType<S[K]>, T> {
+    return new DispatcherImpl<S, K, T>(params.reducer, this, params.key)
       .dispatch;
   }
 
   @bound
-  createAsyncDispatch<K extends keyof S, T, P = void>(params: {
-    reducer: AsyncReducer<T, P, S, K>;
+  createAsyncDispatch<K extends keyof S, T extends string>(params: {
+    reducer: AsyncReducer<T, S, K>;
     key: K;
-  }): AsyncDispatch<P, T, S, K> {
-    return new AsyncDispatcherImpl<S, K, T, P>(params.reducer, this, params.key)
+  }): AsyncDispatch<T, S, K> {
+    return new AsyncDispatcherImpl<S, K, T>(params.reducer, this, params.key)
       .dispatch;
   }
 

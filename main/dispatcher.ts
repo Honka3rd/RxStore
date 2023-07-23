@@ -11,17 +11,17 @@ import {
 } from "rx-store-types";
 import { bound } from "./decorators/bound";
 
-export class DispatcherImpl<S extends BS, K extends keyof S, T, P>
-  implements Dispatcher<P, T>
+export class DispatcherImpl<S extends BS, K extends keyof S, T extends string>
+  implements Dispatcher<ReturnType<S[K]>, T>
 {
   constructor(
-    private reducer: Reducer<T, P, S, K>,
+    private reducer: Reducer<T, S, K>,
     private store: RxStore<S>,
     private key: K
   ) {}
 
   @bound
-  dispatch(action: Action<P, T>) {
+  dispatch(action: Action<ReturnType<S[K]>, T>) {
     const mutation = {
       [this.key]: this.reducer(this.store.getState(this.key), {
         type: action.type,
@@ -35,18 +35,24 @@ export class DispatcherImpl<S extends BS, K extends keyof S, T, P>
   }
 }
 
-export class AsyncDispatcherImpl<S extends BS, K extends keyof S, T, P>
-  implements AsyncDispatcher<P, T, S, K>
+export class AsyncDispatcherImpl<
+  S extends BS,
+  K extends keyof S,
+  T extends string
+> implements AsyncDispatcher<T, S, K>
 {
   constructor(
-    private reducer: AsyncReducer<T, P, S, K>,
+    private reducer: AsyncReducer<T, S, K>,
     private store: RxStore<S>,
     private key: K
   ) {}
 
   @bound
-  async dispatch(action: Action<P, T>, config: AsyncDispatchConfig<S, K> = {}) {
-    const { start, fail, errorFallback, always, success } = config;
+  async dispatch(
+    action: Action<ReturnType<S[K]>, T>,
+    config: AsyncDispatchConfig<S, K> = {}
+  ) {
+    const { start, fail, fallback, always, success } = config;
     const asyncResult = this.reducer(this.store.getState(this.key), action);
     start?.();
     try {
@@ -62,11 +68,11 @@ export class AsyncDispatcherImpl<S extends BS, K extends keyof S, T, P>
       this.store.setState(mutation);
     } catch (error) {
       fail?.(error);
-      if (!errorFallback) {
+      if (!fallback) {
         return;
       }
       this.store.setState({
-        [this.key]: errorFallback(),
+        [this.key]: fallback(),
       } as {});
     } finally {
       always?.();

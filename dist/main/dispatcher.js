@@ -117,12 +117,12 @@ var AsyncDispatcherImpl = exports.AsyncDispatcherImpl = function () {
             AsyncDispatcherImpl.prototype.dispatch = function (action, config) {
                 if (config === void 0) { config = {}; }
                 return __awaiter(this, void 0, void 0, function () {
-                    var start, fail, errorFallback, always, success, asyncResult, async$, result, mutation, error_1;
+                    var start, fail, fallback, always, success, asyncResult, async$, result, mutation, error_1;
                     var _a, _b;
                     return __generator(this, function (_c) {
                         switch (_c.label) {
                             case 0:
-                                start = config.start, fail = config.fail, errorFallback = config.errorFallback, always = config.always, success = config.success;
+                                start = config.start, fail = config.fail, fallback = config.fallback, always = config.always, success = config.success;
                                 asyncResult = this.reducer(this.store.getState(this.key), action);
                                 start === null || start === void 0 ? void 0 : start();
                                 _c.label = 1;
@@ -143,11 +143,11 @@ var AsyncDispatcherImpl = exports.AsyncDispatcherImpl = function () {
                             case 3:
                                 error_1 = _c.sent();
                                 fail === null || fail === void 0 ? void 0 : fail(error_1);
-                                if (!errorFallback) {
+                                if (!fallback) {
                                     return [2 /*return*/];
                                 }
                                 this.store.setState((_b = {},
-                                    _b[this.key] = errorFallback(),
+                                    _b[this.key] = fallback(),
                                     _b));
                                 return [3 /*break*/, 5];
                             case 4:
