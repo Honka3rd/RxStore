@@ -1,6 +1,5 @@
 import {
   catchError,
-  distinctUntilChanged,
   exhaustMap,
   from,
   map,
@@ -58,7 +57,6 @@ export class ComputedAsyncImpl<R, S extends BS> implements ComputedAsync<R, S> {
     computation: ComputationAsync<R, S>,
     private subscribable: Connectivity<S>,
     private lazy: boolean,
-    private comparator?: Comparator<{ [K in keyof S]: ReturnType<S[K]> }>,
     private onStart?: (val: { [K in keyof S]: ReturnType<S[K]> }) => void,
     private onError?: (err: any) => void,
     private onSuccess?: (result: R) => void,
@@ -81,7 +79,6 @@ export class ComputedAsyncImpl<R, S extends BS> implements ComputedAsync<R, S> {
     const subscription = this.subscribable
       .source()
       .pipe(
-        //distinctUntilChanged(this.comparator),
         tap((val) => {
           this.state = AsyncStates.PENDING;
           onPending?.();

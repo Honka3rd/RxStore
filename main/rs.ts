@@ -197,14 +197,12 @@ export class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
   withAsyncComputation<R>(
     params: {
       computation: ComputationAsync<R, S>;
-      comparator?: Comparator<{ [K in keyof S]: ReturnType<S[K]> }>;
     } & AsyncComputeConfig<S, R>
   ) {
     return new ComputedAsyncImpl(
       params.computation,
       this.connector,
       Boolean(params.lazy),
-      params.comparator ? params.comparator : this.comparator,
       params.onStart,
       params.onError,
       params.onSuccess,

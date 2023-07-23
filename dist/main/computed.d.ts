@@ -11,7 +11,6 @@ export declare class ComputedImpl<R, S extends BS> implements Computed<R, S> {
 export declare class ComputedAsyncImpl<R, S extends BS> implements ComputedAsync<R, S> {
     private subscribable;
     private lazy;
-    private comparator?;
     private onStart?;
     private onError?;
     private onSuccess?;
@@ -19,7 +18,7 @@ export declare class ComputedAsyncImpl<R, S extends BS> implements ComputedAsync
     readonly computation: ComputationAsync<R, S>;
     private computed?;
     private state;
-    constructor(computation: ComputationAsync<R, S>, subscribable: Connectivity<S>, lazy: boolean, comparator?: Comparator<{ [K in keyof S]: ReturnType<S[K]>; }> | undefined, onStart?: ((val: { [K in keyof S]: ReturnType<S[K]>; }) => void) | undefined, onError?: ((err: any) => void) | undefined, onSuccess?: ((result: R) => void) | undefined, onComplete?: (() => void) | undefined);
+    constructor(computation: ComputationAsync<R, S>, subscribable: Connectivity<S>, lazy: boolean, onStart?: ((val: { [K in keyof S]: ReturnType<S[K]>; }) => void) | undefined, onError?: ((err: any) => void) | undefined, onSuccess?: ((result: R) => void) | undefined, onComplete?: (() => void) | undefined);
     get(): {
         state: AsyncStates;
         value: R | undefined;

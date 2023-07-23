@@ -78,10 +78,9 @@ var ComputedAsyncImpl = exports.ComputedAsyncImpl = function () {
     var _get_decorators;
     var _observe_decorators;
     return _a = /** @class */ (function () {
-            function ComputedAsyncImpl(computation, subscribable, lazy, comparator, onStart, onError, onSuccess, onComplete) {
+            function ComputedAsyncImpl(computation, subscribable, lazy, onStart, onError, onSuccess, onComplete) {
                 this.subscribable = (__runInitializers(this, _instanceExtraInitializers_1), subscribable);
                 this.lazy = lazy;
-                this.comparator = comparator;
                 this.onStart = onStart;
                 this.onError = onError;
                 this.onSuccess = onSuccess;
@@ -100,9 +99,7 @@ var ComputedAsyncImpl = exports.ComputedAsyncImpl = function () {
                 var connect = this.lazy ? rxjs_1.exhaustMap : rxjs_1.switchMap;
                 var subscription = this.subscribable
                     .source()
-                    .pipe(
-                //distinctUntilChanged(this.comparator),
-                (0, rxjs_1.tap)(function (val) {
+                    .pipe((0, rxjs_1.tap)(function (val) {
                     var _a;
                     _this.state = rx_store_types_1.AsyncStates.PENDING;
                     onPending === null || onPending === void 0 ? void 0 : onPending();

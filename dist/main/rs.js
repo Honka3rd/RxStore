@@ -142,7 +142,7 @@ var RxStoreImpl = exports.RxStoreImpl = function () {
                 return new computed_1.ComputedImpl(params.computation, this.connector, params.comparator ? params.comparator : this.comparator);
             };
             RxStoreImpl.prototype.withAsyncComputation = function (params) {
-                return new computed_1.ComputedAsyncImpl(params.computation, this.connector, Boolean(params.lazy), params.comparator ? params.comparator : this.comparator, params.onStart, params.onError, params.onSuccess, params.onComplete);
+                return new computed_1.ComputedAsyncImpl(params.computation, this.connector, Boolean(params.lazy), params.onStart, params.onError, params.onSuccess, params.onComplete);
             };
             return RxStoreImpl;
         }()),

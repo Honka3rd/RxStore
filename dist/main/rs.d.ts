@@ -51,8 +51,5 @@ export declare class RxStoreImpl<S extends BS> implements Subscribable<S>, RxSto
     }): ComputedImpl<R, S>;
     withAsyncComputation<R>(params: {
         computation: ComputationAsync<R, S>;
-        comparator?: Comparator<{
-            [K in keyof S]: ReturnType<S[K]>;
-        }>;
     } & AsyncComputeConfig<S, R>): ComputedAsyncImpl<R, S>;
 }
