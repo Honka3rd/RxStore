@@ -81,12 +81,12 @@ export class ComputedAsyncImpl<R, S extends BS> implements ComputedAsync<R, S> {
     const subscription = this.subscribable
       .source()
       .pipe(
+        //distinctUntilChanged(this.comparator),
         tap((val) => {
           this.state = AsyncStates.PENDING;
           onPending?.();
           this.onStart?.(val);
         }),
-        distinctUntilChanged(this.comparator),
         connect((states) => {
           const asyncReturn = this.computation(states);
           const async$ =

@@ -100,12 +100,14 @@ var ComputedAsyncImpl = exports.ComputedAsyncImpl = function () {
                 var connect = this.lazy ? rxjs_1.exhaustMap : rxjs_1.switchMap;
                 var subscription = this.subscribable
                     .source()
-                    .pipe((0, rxjs_1.tap)(function (val) {
+                    .pipe(
+                //distinctUntilChanged(this.comparator),
+                (0, rxjs_1.tap)(function (val) {
                     var _a;
                     _this.state = rx_store_types_1.AsyncStates.PENDING;
                     onPending === null || onPending === void 0 ? void 0 : onPending();
                     (_a = _this.onStart) === null || _a === void 0 ? void 0 : _a.call(_this, val);
-                }), (0, rxjs_1.distinctUntilChanged)(this.comparator), connect(function (states) {
+                }), connect(function (states) {
                     var asyncReturn = _this.computation(states);
                     var async$ = asyncReturn instanceof Promise ? (0, rxjs_1.from)(asyncReturn) : asyncReturn;
                     return async$.pipe((0, rxjs_1.map)(function (result) {
