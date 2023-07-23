@@ -1,6 +1,6 @@
 {
   "name": "rx-store-core",
-  "version": "2.2.4",
+  "version": "2.2.5",
   "description": "A Rxjs and Immutable based Type-safe state management tool",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
