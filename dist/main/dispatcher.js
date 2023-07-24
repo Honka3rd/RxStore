@@ -145,7 +145,6 @@ var AsyncDispatcherImpl = exports.AsyncDispatcherImpl = function () {
                     var start = _a.start;
                     if (start) {
                         start();
-                        return;
                     }
                     (_c = (_b = _this.config) === null || _b === void 0 ? void 0 : _b.start) === null || _c === void 0 ? void 0 : _c.call(_b);
                 }), (0, rxjs_1.map)(function (_a) {
@@ -162,28 +161,22 @@ var AsyncDispatcherImpl = exports.AsyncDispatcherImpl = function () {
                             ? getDefault()
                             : _this.store.getState(_this.key);
                         if (fail) {
-                            fail(err);
+                            fail(err, valOnErr);
                         }
-                        else {
-                            (_c = (_b = _this.config) === null || _b === void 0 ? void 0 : _b.fail) === null || _c === void 0 ? void 0 : _c.call(_b, err);
-                        }
+                        (_c = (_b = _this.config) === null || _b === void 0 ? void 0 : _b.fail) === null || _c === void 0 ? void 0 : _c.call(_b, err, valOnErr);
                         return (0, rxjs_1.of)(valOnErr);
                     }), (0, rxjs_1.tap)(function (resp) {
                         var _a, _b;
                         if (success) {
                             success(resp);
                         }
-                        else {
-                            (_b = (_a = _this.config) === null || _a === void 0 ? void 0 : _a.success) === null || _b === void 0 ? void 0 : _b.call(_a, resp);
-                        }
+                        (_b = (_a = _this.config) === null || _a === void 0 ? void 0 : _a.success) === null || _b === void 0 ? void 0 : _b.call(_a, resp);
                     }), (0, rxjs_1.tap)(function () {
                         var _a, _b;
                         if (always) {
                             always();
                         }
-                        else {
-                            (_b = (_a = _this.config) === null || _a === void 0 ? void 0 : _a.always) === null || _b === void 0 ? void 0 : _b.call(_a);
-                        }
+                        (_b = (_a = _this.config) === null || _a === void 0 ? void 0 : _a.always) === null || _b === void 0 ? void 0 : _b.call(_a);
                     }));
                 }), connect(function (converged$) { return converged$; }))
                     .subscribe(observer);

@@ -78,7 +78,6 @@ export class AsyncDispatcherImpl<
         tap(({ start }) => {
           if (start) {
             start();
-            return;
           }
           this.config?.start?.();
         }),
@@ -91,30 +90,28 @@ export class AsyncDispatcherImpl<
             result$ instanceof Promise ? from(result$) : result$;
           return converged$.pipe(
             catchError((err) => {
-              const getDefault = fallback ? fallback : this.config?.fallback
+              const getDefault = fallback ? fallback : this.config?.fallback;
               const valOnErr = getDefault
                 ? getDefault()
                 : this.store.getState(this.key);
               if (fail) {
-                fail(err);
-              } else {
-                this.config?.fail?.(err);
+                fail(err, valOnErr);
               }
+              this.config?.fail?.(err, valOnErr);
               return of(valOnErr);
             }),
             tap((resp) => {
               if (success) {
                 success(resp);
-              } else {
-                this.config?.success?.(resp);
               }
+
+              this.config?.success?.(resp);
             }),
             tap(() => {
               if (always) {
                 always();
-              } else {
-                this.config?.always?.();
               }
+              this.config?.always?.();
             })
           );
         }),
