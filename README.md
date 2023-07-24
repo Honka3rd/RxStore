@@ -135,6 +135,18 @@ setTimeout(() => {
 ```
 
 **_Create a dispatch function for stored data_**
+createDispatch
+sometimes we might need to manage complex state by a reducer
+
+arguments: [key, reducer]
+
+key is the state name defined in store
+
+reducer is the similar function with React userReducer parameter, first arg is previous value, second arg is the action contains type and an optional payload*
+
+the type of this payload is the same as related state marked with "key(first argument)" defined inside store
+
+return a dispatch function, we can use this dispatch function to emit actions
 
 example:
 
@@ -147,7 +159,7 @@ const { observe, createDispatch } = NRS({
   height: () => 0,
 });
 
-const dispatchHeight = createDispatch<"height", "clear" | "auto", number>({
+const dispatchHeight = createDispatch<"height", "clear" | "auto">({
     key: "height", // the name of defined data
     reducer: (h, action) => {
         if(action.type === "clear") {
@@ -190,24 +202,39 @@ observe("height", (h) => {
 ```
 
 **_Create a asynchronous dispatch function for stored data_**
-
+createAsyncDispatch:
 sometimes we might need a asynchronous process happened after dispatching data, we can return a Promise or Observable in defined Reducer
 
-the second argument is a config object containing:
+arguments: [key, reducer, config]
 
+key is the state name defined in store
+
+reducer is the similar function with React userReducer parameter, first arg is previous value, second arg is the action contains type and an optional payload*
+
+the type of this payload is the same as related state marked with "key(first argument)" defined inside store
+
+the third argument is a config object containing:
+a boolean parameter "lazy", if  it is true, reducer will not be invoked until previous async process is not pending.
+
+And Functions:
 
 | Function      | Argument         | Return           | Required     | Description                                                                                               |
 | ------------- | ---------------- | ---------------- |------------- | --------------------------------------------------------------------------------------------------------- |
 | start         | N/A              | void             | No           | fire on start      |                                                                                            
 | success       | ReturnType<S[K]> | void             | No           | fire on success, carried with resolved value |
 | fail          | unknown          | void             | No           | fire on error, carried with an error |
-| errorFallback | N/A              | ReturnType<S[K]> | No           | a callback providing a value when error to update store, the store will not be updated if it is undefined |
+| fallback      | N/A              | ReturnType<S[K]> | No           | a callback providing a value when error to update store, the store will not be updated if it is undefined |
 | always        | N/A              | void             | No           | fire on the Observable complete or Promise finalized |
 
+return a constant array [dispatch, observe]
+
+we can dispatch actions mixed with a config object (mentioned above third parameter)
+
+observe returns a destructor, start to listen the dispatch activity until we call the destructor
 ***you do not need to try catch the async dispatch function, as the error has been captured inside, use the second argument to handle error***
 
 ```javascript
-const dispatchHeight = createAsyncDispatch<"height", "clear" | "auto", number>({
+const [dispatchHeight, observeHeightReducer] = createAsyncDispatch<"height", "clear" | "auto">({
   key: "height",
   reducer: (h, action) => {
     if (action.type === "clear") {
@@ -217,7 +244,7 @@ const dispatchHeight = createAsyncDispatch<"height", "clear" | "auto", number>({
         }, 1000);
       });
     }
-
+  // action.payload is a number
     if (action.type === "auto") {
       return new Promise((resolve) => {
         setTimeout(() => {
@@ -228,9 +255,25 @@ const dispatchHeight = createAsyncDispatch<"height", "clear" | "auto", number>({
     return Promise.resolve(h);
   },
 },
-// optional second argument
+// optional third argument
 );
 // we can observe "height" like usual
+observe("height", console.log)
+
+// need to start observe the dispatch activity and use reducer as the observer
+
+const unObserve = observeHeightReducer();
+
+// call unObserve when we are not caring the dispatch activity
+
+dispatchHeight(
+  {
+    type:"auto",
+    payload: 100,
+    fail: (err) => console.error(err)
+  }
+)
+// dispatch an action with config, the config will overwrite the third argument only in current dispatch activity
 ```
 
 **_Clone and compare_**
@@ -354,7 +397,8 @@ const compute = withAsyncComputation({
 compute.observe((h) => {
   console.log(h);
   // should log 84 after 1 second
-}, onPending // optional, fire on start async process);
+}, onPending // optional, fire on start async process
+);
 
 setState({ height: 42 });
 

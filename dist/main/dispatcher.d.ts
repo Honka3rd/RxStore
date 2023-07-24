@@ -10,6 +10,9 @@ export declare class AsyncDispatcherImpl<S extends BS, K extends keyof S, T exte
     private reducer;
     private store;
     private key;
-    constructor(reducer: AsyncReducer<T, S, K>, store: RxStore<S>, key: K);
+    private config?;
+    private dispatchSignal;
+    constructor(reducer: AsyncReducer<T, S, K>, store: RxStore<S>, key: K, config?: AsyncDispatchConfig<S, K> | undefined);
+    observe(): () => void;
     dispatch(action: Action<ReturnType<S[K]>, T>, config?: AsyncDispatchConfig<S, K>): Promise<void>;
 }

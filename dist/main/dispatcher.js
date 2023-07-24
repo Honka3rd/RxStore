@@ -1,4 +1,15 @@
 "use strict";
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
     var useValue = arguments.length > 2;
     for (var i = 0; i < initializers.length; i++) {
@@ -107,61 +118,92 @@ var DispatcherImpl = exports.DispatcherImpl = function () {
 var AsyncDispatcherImpl = exports.AsyncDispatcherImpl = function () {
     var _a;
     var _instanceExtraInitializers_1 = [];
+    var _observe_decorators;
     var _dispatch_decorators;
     return _a = /** @class */ (function () {
-            function AsyncDispatcherImpl(reducer, store, key) {
+            function AsyncDispatcherImpl(reducer, store, key, config) {
                 this.reducer = (__runInitializers(this, _instanceExtraInitializers_1), reducer);
                 this.store = store;
                 this.key = key;
+                this.config = config;
+                this.dispatchSignal = new rxjs_1.Subject();
             }
+            AsyncDispatcherImpl.prototype.observe = function () {
+                var _this = this;
+                var _a;
+                var connect = ((_a = this.config) === null || _a === void 0 ? void 0 : _a.lazy) ? rxjs_1.exhaustMap : rxjs_1.switchMap;
+                var subscription = this.dispatchSignal
+                    .pipe((0, rxjs_1.tap)(function (_a) {
+                    var lazy = _a.lazy;
+                    if (lazy) {
+                        connect = rxjs_1.exhaustMap;
+                        return;
+                    }
+                    connect = rxjs_1.switchMap;
+                }), (0, rxjs_1.tap)(function (_a) {
+                    var _b, _c;
+                    var start = _a.start;
+                    if (start) {
+                        start();
+                        return;
+                    }
+                    (_c = (_b = _this.config) === null || _b === void 0 ? void 0 : _b.start) === null || _c === void 0 ? void 0 : _c.call(_b);
+                }), (0, rxjs_1.map)(function (_a) {
+                    var type = _a.type, payload = _a.payload, fail = _a.fail, fallback = _a.fallback, always = _a.always, success = _a.success;
+                    var result$ = _this.reducer(_this.store.getState(_this.key), {
+                        type: type,
+                        payload: payload,
+                    });
+                    var converged$ = result$ instanceof Promise ? (0, rxjs_1.from)(result$) : result$;
+                    return converged$.pipe((0, rxjs_1.catchError)(function (err) {
+                        var _a, _b, _c;
+                        var getDefault = fallback ? fallback : (_a = _this.config) === null || _a === void 0 ? void 0 : _a.fallback;
+                        var valOnErr = getDefault
+                            ? getDefault()
+                            : _this.store.getState(_this.key);
+                        if (fail) {
+                            fail(err);
+                        }
+                        else {
+                            (_c = (_b = _this.config) === null || _b === void 0 ? void 0 : _b.fail) === null || _c === void 0 ? void 0 : _c.call(_b, err);
+                        }
+                        return (0, rxjs_1.of)(valOnErr);
+                    }), (0, rxjs_1.tap)(function (resp) {
+                        var _a, _b;
+                        if (success) {
+                            success(resp);
+                        }
+                        else {
+                            (_b = (_a = _this.config) === null || _a === void 0 ? void 0 : _a.success) === null || _b === void 0 ? void 0 : _b.call(_a, resp);
+                        }
+                    }), (0, rxjs_1.tap)(function () {
+                        var _a, _b;
+                        if (always) {
+                            always();
+                        }
+                        else {
+                            (_b = (_a = _this.config) === null || _a === void 0 ? void 0 : _a.always) === null || _b === void 0 ? void 0 : _b.call(_a);
+                        }
+                    }));
+                }), connect(function (converged$) { return converged$; }))
+                    .subscribe();
+                return function () { return subscription.unsubscribe(); };
+            };
             AsyncDispatcherImpl.prototype.dispatch = function (action, config) {
                 if (config === void 0) { config = {}; }
                 return __awaiter(this, void 0, void 0, function () {
-                    var start, fail, fallback, always, success, asyncResult, async$, result, mutation, error_1;
-                    var _a, _b;
-                    return __generator(this, function (_c) {
-                        switch (_c.label) {
-                            case 0:
-                                start = config.start, fail = config.fail, fallback = config.fallback, always = config.always, success = config.success;
-                                asyncResult = this.reducer(this.store.getState(this.key), action);
-                                start === null || start === void 0 ? void 0 : start();
-                                _c.label = 1;
-                            case 1:
-                                _c.trys.push([1, 3, 4, 5]);
-                                async$ = asyncResult instanceof rxjs_1.Observable
-                                    ? (0, rxjs_1.lastValueFrom)(asyncResult)
-                                    : asyncResult;
-                                return [4 /*yield*/, async$];
-                            case 2:
-                                result = _c.sent();
-                                success === null || success === void 0 ? void 0 : success(result);
-                                mutation = (_a = {},
-                                    _a[this.key] = result,
-                                    _a);
-                                this.store.setState(mutation);
-                                return [3 /*break*/, 5];
-                            case 3:
-                                error_1 = _c.sent();
-                                fail === null || fail === void 0 ? void 0 : fail(error_1);
-                                if (!fallback) {
-                                    return [2 /*return*/];
-                                }
-                                this.store.setState((_b = {},
-                                    _b[this.key] = fallback(),
-                                    _b));
-                                return [3 /*break*/, 5];
-                            case 4:
-                                always === null || always === void 0 ? void 0 : always();
-                                return [7 /*endfinally*/];
-                            case 5: return [2 /*return*/];
-                        }
+                    return __generator(this, function (_a) {
+                        this.dispatchSignal.next(__assign(__assign({}, action), config));
+                        return [2 /*return*/];
                     });
                 });
             };
             return AsyncDispatcherImpl;
         }()),
         (function () {
+            _observe_decorators = [bound_1.bound];
             _dispatch_decorators = [bound_1.bound];
+            __esDecorate(_a, null, _observe_decorators, { kind: "method", name: "observe", static: false, private: false, access: { has: function (obj) { return "observe" in obj; }, get: function (obj) { return obj.observe; } } }, null, _instanceExtraInitializers_1);
             __esDecorate(_a, null, _dispatch_decorators, { kind: "method", name: "dispatch", static: false, private: false, access: { has: function (obj) { return "dispatch" in obj; }, get: function (obj) { return obj.dispatch; } } }, null, _instanceExtraInitializers_1);
         })(),
         _a;

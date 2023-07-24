@@ -1,7 +1,7 @@
 import { Collection, Map } from "immutable";
 import { BS, CloneFunction, Comparator, ComparatorMap, Connectivity, IBS, NRSConfig, ReactiveConfig, RxImStore, RxNStore, Subscribable } from "rx-store-types";
 import { bound } from "./main/decorators/bound";
-import { RxStoreImpl } from "./main/rs";
+import { RxStoreImpl } from "./main/store";
 import { isObject } from "./main/util/isObject";
 import { isPrimitive } from "./main/util/isPrimitive";
 import { shallowClone } from "./main/util/shallowClone";

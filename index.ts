@@ -18,7 +18,7 @@ import {
 } from "rx-store-types";
 import { ConnectivityImpl } from "./main/connectivity";
 import { bound } from "./main/decorators/bound";
-import { RxStoreImpl } from "./main/rs";
+import { RxStoreImpl } from "./main/store";
 import { isObject } from "./main/util/isObject";
 import { isPrimitive } from "./main/util/isPrimitive";
 import { shallowClone } from "./main/util/shallowClone";

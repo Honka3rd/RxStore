@@ -66,7 +66,7 @@ var immutable_1 = require("immutable");
 var connectivity_1 = require("./main/connectivity");
 var bound_1 = require("./main/decorators/bound");
 Object.defineProperty(exports, "bound", { enumerable: true, get: function () { return bound_1.bound; } });
-var rs_1 = require("./main/rs");
+var store_1 = require("./main/store");
 var isObject_1 = require("./main/util/isObject");
 Object.defineProperty(exports, "isObject", { enumerable: true, get: function () { return isObject_1.isObject; } });
 var isPrimitive_1 = require("./main/util/isPrimitive");
@@ -141,7 +141,7 @@ var RxNStoreImpl = exports.RxNStoreImpl = function () {
                 return __assign({}, this.cloneFunctionMap);
             };
             return RxNStoreImpl;
-        }(rs_1.RxStoreImpl)),
+        }(store_1.RxStoreImpl)),
         (function () {
             _getClonedState_decorators = [bound_1.bound];
             _getStateAll_decorators = [bound_1.bound];
@@ -199,7 +199,7 @@ var RxImStoreImpl = exports.RxImStoreImpl = function () {
                 return (0, immutable_1.Map)(this.connector.getDefaultAll());
             };
             return RxImStoreImpl;
-        }(rs_1.RxStoreImpl)),
+        }(store_1.RxStoreImpl)),
         (function () {
             _getStateAll_decorators = [bound_1.bound];
             _getStates_decorators = [bound_1.bound];

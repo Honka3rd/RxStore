@@ -1,4 +1,15 @@
-import { lastValueFrom, Observable } from "rxjs";
+import {
+  catchError,
+  exhaustMap,
+  from,
+  lastValueFrom,
+  map,
+  Observable,
+  of,
+  Subject,
+  switchMap,
+  tap,
+} from "rxjs";
 import {
   Action,
   AsyncReducer,
@@ -41,41 +52,82 @@ export class AsyncDispatcherImpl<
   T extends string
 > implements AsyncDispatcher<T, S, K>
 {
+  private dispatchSignal: Subject<
+    Action<ReturnType<S[K]>, T> & AsyncDispatchConfig<S, K>
+  > = new Subject();
   constructor(
     private reducer: AsyncReducer<T, S, K>,
     private store: RxStore<S>,
-    private key: K
+    private key: K,
+    private config?: AsyncDispatchConfig<S, K>
   ) {}
+
+  @bound
+  observe() {
+    let connect = this.config?.lazy ? exhaustMap : switchMap;
+    const subscription = this.dispatchSignal
+      .pipe(
+        tap(({ lazy }) => {
+          if (lazy) {
+            connect = exhaustMap;
+            return;
+          }
+          connect = switchMap;
+        }),
+        tap(({ start }) => {
+          if (start) {
+            start();
+            return;
+          }
+          this.config?.start?.();
+        }),
+        map(({ type, payload, fail, fallback, always, success }) => {
+          const result$ = this.reducer(this.store.getState(this.key), {
+            type,
+            payload,
+          });
+          const converged$ =
+            result$ instanceof Promise ? from(result$) : result$;
+          return converged$.pipe(
+            catchError((err) => {
+              const getDefault = fallback ? fallback : this.config?.fallback
+              const valOnErr = getDefault
+                ? getDefault()
+                : this.store.getState(this.key);
+              if (fail) {
+                fail(err);
+              } else {
+                this.config?.fail?.(err);
+              }
+              return of(valOnErr);
+            }),
+            tap((resp) => {
+              if (success) {
+                success(resp);
+              } else {
+                this.config?.success?.(resp);
+              }
+            }),
+            tap(() => {
+              if (always) {
+                always();
+              } else {
+                this.config?.always?.();
+              }
+            })
+          );
+        }),
+        connect((converged$) => converged$)
+      )
+      .subscribe();
+    return () => subscription.unsubscribe();
+  }
 
   @bound
   async dispatch(
     action: Action<ReturnType<S[K]>, T>,
     config: AsyncDispatchConfig<S, K> = {}
   ) {
-    const { start, fail, fallback, always, success } = config;
-    const asyncResult = this.reducer(this.store.getState(this.key), action);
-    start?.();
-    try {
-      const async$ =
-        asyncResult instanceof Observable
-          ? lastValueFrom(asyncResult)
-          : asyncResult;
-      const result = await async$;
-      success?.(result);
-      const mutation = {
-        [this.key]: result,
-      } as {};
-      this.store.setState(mutation);
-    } catch (error) {
-      fail?.(error);
-      if (!fallback) {
-        return;
-      }
-      this.store.setState({
-        [this.key]: fallback(),
-      } as {});
-    } finally {
-      always?.();
-    }
+    this.dispatchSignal.next({ ...action, ...config });
   }
 }
