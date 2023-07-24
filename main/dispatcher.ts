@@ -104,7 +104,6 @@ export class AsyncDispatcherImpl<
               if (success) {
                 success(resp);
               }
-
               this.config?.success?.(resp);
             }),
             tap(() => {
@@ -117,7 +116,10 @@ export class AsyncDispatcherImpl<
         }),
         connect((converged$) => converged$)
       )
-      .subscribe(observer);
+      .subscribe((value) => {
+        observer?.(value);
+        this.store.setState({ [this.key]: value } as {});
+      });
     return () => subscription.unsubscribe();
   }
 

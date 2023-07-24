@@ -179,7 +179,11 @@ var AsyncDispatcherImpl = exports.AsyncDispatcherImpl = function () {
                         (_b = (_a = _this.config) === null || _a === void 0 ? void 0 : _a.always) === null || _b === void 0 ? void 0 : _b.call(_a);
                     }));
                 }), connect(function (converged$) { return converged$; }))
-                    .subscribe(observer);
+                    .subscribe(function (value) {
+                    var _a;
+                    observer === null || observer === void 0 ? void 0 : observer(value);
+                    _this.store.setState((_a = {}, _a[_this.key] = value, _a));
+                });
                 return function () { return subscription.unsubscribe(); };
             };
             AsyncDispatcherImpl.prototype.dispatch = function (action, config) {
