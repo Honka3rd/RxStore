@@ -13,6 +13,7 @@ import {
   Subscribable,
   AsyncComputeConfig,
   AsyncDispatchConfig,
+  Observe
 } from "rx-store-types";
 import { ComputedAsyncImpl, ComputedImpl } from "./computed";
 import { AsyncDispatcherImpl, DispatcherImpl } from "./dispatcher";
@@ -176,7 +177,10 @@ export class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
     reducer: AsyncReducer<T, S, K>;
     key: K;
     config?: AsyncDispatchConfig<S, K>;
-  }): [AsyncDispatch<T, S, K>, () => () => void] {
+  }): [
+    AsyncDispatch<T, S, K>,
+    Observe<ReturnType<S[K]>>
+  ] {
     const { dispatch, observe } = new AsyncDispatcherImpl<S, K, T>(
       params.reducer,
       this,

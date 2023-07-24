@@ -19,6 +19,7 @@ import {
   Dispatcher,
   Reducer,
   RxStore,
+  Observer,
 } from "rx-store-types";
 import { bound } from "./decorators/bound";
 
@@ -63,7 +64,7 @@ export class AsyncDispatcherImpl<
   ) {}
 
   @bound
-  observe() {
+  observe(observer?: Observer<ReturnType<S[K]>>) {
     let connect = this.config?.lazy ? exhaustMap : switchMap;
     const subscription = this.dispatchSignal
       .pipe(
@@ -119,7 +120,7 @@ export class AsyncDispatcherImpl<
         }),
         connect((converged$) => converged$)
       )
-      .subscribe();
+      .subscribe(observer);
     return () => subscription.unsubscribe();
   }
 

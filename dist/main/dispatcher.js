@@ -128,7 +128,7 @@ var AsyncDispatcherImpl = exports.AsyncDispatcherImpl = function () {
                 this.config = config;
                 this.dispatchSignal = new rxjs_1.Subject();
             }
-            AsyncDispatcherImpl.prototype.observe = function () {
+            AsyncDispatcherImpl.prototype.observe = function (observer) {
                 var _this = this;
                 var _a;
                 var connect = ((_a = this.config) === null || _a === void 0 ? void 0 : _a.lazy) ? rxjs_1.exhaustMap : rxjs_1.switchMap;
@@ -186,7 +186,7 @@ var AsyncDispatcherImpl = exports.AsyncDispatcherImpl = function () {
                         }
                     }));
                 }), connect(function (converged$) { return converged$; }))
-                    .subscribe();
+                    .subscribe(observer);
                 return function () { return subscription.unsubscribe(); };
             };
             AsyncDispatcherImpl.prototype.dispatch = function (action, config) {
