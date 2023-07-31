@@ -44,7 +44,8 @@ var ConnectivityImpl = /** @class */ (function (_super) {
     ConnectivityImpl.prototype.observeMultiple = function (keys, observer, comparator) {
         var subscription = this.source()
             .pipe((0, rxjs_1.map)(function (val) {
-            return keys.reduce(function (acc, next) {
+            var converted = keys;
+            return converted.reduce(function (acc, next) {
                 acc[next] = val[next];
                 return acc;
             }, {});

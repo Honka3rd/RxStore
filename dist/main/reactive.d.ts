@@ -1,4 +1,4 @@
-import { BS, Reactive, ReactiveConfig } from "rx-store-types";
+import { BS, ConstraintKeys, Reactive, ReactiveConfig } from "rx-store-types";
 export declare class ReactiveImpl<S extends BS> implements Reactive<S> {
     private initiator;
     private dataSource;
@@ -9,13 +9,13 @@ export declare class ReactiveImpl<S extends BS> implements Reactive<S> {
         [K in KS]: ReturnType<S[K]>;
     }): void;
     reset<K extends keyof S>(key: K): void;
-    resetMultiple<KS extends (keyof S)[]>(keys: KS): void;
+    resetMultiple<KS extends keyof S>(keys: ConstraintKeys<KS>): void;
     resetAll(): void;
     source(): import("rxjs").Observable<{ [K in keyof S]: ReturnType<S[K]>; }>;
     getDefault<K extends keyof S>(key: K): ReturnType<S[K]>;
-    getDefaults<KS extends keyof S>(keys: KS[]): { [k in KS]: ReturnType<S[k]>; };
+    getDefaults<KS extends keyof S>(keys: ConstraintKeys<KS>): { [k in KS]: ReturnType<S[k]>; };
     getDefaultAll: () => { [k in keyof S]: ReturnType<S[k]>; };
-    getMultiple<KS extends keyof S>(keys: KS[]): { [K in KS]: ReturnType<S[K]>; };
+    getMultiple<KS extends keyof S>(keys: ConstraintKeys<KS>): { [K in KS]: ReturnType<S[K]>; };
     getAll(): { [K in keyof S]: ReturnType<S[K]>; } | { [K_1 in keyof S]: ReturnType<S[K_1]>; } | { [K_2 in keyof S]: ReturnType<S[K_2]>; };
     getAllKeys(): Array<keyof S>;
 }

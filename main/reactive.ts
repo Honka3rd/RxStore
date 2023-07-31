@@ -1,5 +1,5 @@
 import { BehaviorSubject } from "rxjs";
-import { BS, Reactive, ReactiveConfig } from "rx-store-types";
+import { BS, ConstraintKeys, Reactive, ReactiveConfig } from "rx-store-types";
 import { AsyncBeheviorSubjectWithValue } from "./util/AsyncBeheviorSubjectWithValue";
 import { AsyncSubjectWithValue } from "./util/AsyncSubjectWithValue";
 import { SubjectWithValue } from "./util/SubjectWithValue";
@@ -8,8 +8,7 @@ export class ReactiveImpl<S extends BS> implements Reactive<S> {
   private dataSource:
     | BehaviorSubject<{ [K in keyof S]: ReturnType<S[K]> }>
     | SubjectWithValue<{ [K in keyof S]: ReturnType<S[K]> }>
-    | AsyncSubjectWithValue<{ [K in keyof S]: ReturnType<S[K]> }>
-    
+    | AsyncSubjectWithValue<{ [K in keyof S]: ReturnType<S[K]> }>;
 
   constructor(private initiator: S, config: ReactiveConfig) {
     this.dataSource = this.init(config);
@@ -22,10 +21,10 @@ export class ReactiveImpl<S extends BS> implements Reactive<S> {
       return acc;
     }, {} as { [K in keyof S]: ReturnType<S[K]> });
 
-    if(schedule === "async") {
+    if (schedule === "async") {
       return fireOnCreate
-      ? new AsyncBeheviorSubjectWithValue(initData)
-      : new AsyncSubjectWithValue(initData);
+        ? new AsyncBeheviorSubjectWithValue(initData)
+        : new AsyncSubjectWithValue(initData);
     }
 
     return fireOnCreate
@@ -52,9 +51,10 @@ export class ReactiveImpl<S extends BS> implements Reactive<S> {
     this.dataSource.next(data);
   }
 
-  resetMultiple<KS extends (keyof S)[]>(keys: KS) {
+  resetMultiple<KS extends keyof S>(keys: ConstraintKeys<KS>) {
     const data = this.dataSource.value;
-    keys.forEach((key) => {
+    const converted = keys as KS[];
+    converted.forEach((key) => {
       data[key] = this.initiator[key]();
     });
     this.dataSource.next(data);
@@ -72,12 +72,13 @@ export class ReactiveImpl<S extends BS> implements Reactive<S> {
     return this.dataSource.asObservable();
   }
 
-  getDefault<K extends keyof S>(key: K):ReturnType<S[K]> {
+  getDefault<K extends keyof S>(key: K): ReturnType<S[K]> {
     return this.initiator[key]();
   }
 
-  getDefaults<KS extends keyof S>(keys: KS[]) {
-    return keys.reduce((acc, next) => {
+  getDefaults<KS extends keyof S>(keys: ConstraintKeys<KS>) {
+    const converted = keys as KS[];
+    return converted.reduce((acc, next) => {
       acc[next] = this.getDefault(next);
       return acc;
     }, {} as { [k in KS]: ReturnType<S[k]> });
@@ -90,9 +91,9 @@ export class ReactiveImpl<S extends BS> implements Reactive<S> {
     }, {} as { [k in keyof S]: ReturnType<S[k]> });
   };
 
-  getMultiple<KS extends keyof S>(keys: KS[]) {
-    const data = this.dataSource.value;
-    return keys.reduce((acc, next) => {
+  getMultiple<KS extends keyof S>(keys: ConstraintKeys<KS>) {
+    const converted = keys as KS[];
+    return converted.reduce((acc, next) => {
       acc[next] = this.get(next);
       return acc;
     }, {} as { [K in KS]: ReturnType<S[K]> });

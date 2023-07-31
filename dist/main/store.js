@@ -37,10 +37,10 @@ var _this = this;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RxStoreImpl = void 0;
 var computed_1 = require("./computed");
+var bound_1 = require("./decorators/bound");
 var dispatcher_1 = require("./dispatcher");
 var objectShallowCompareFactory_1 = require("./util/objectShallowCompareFactory");
 var shallowCompare_1 = require("./util/shallowCompare");
-var bound_1 = require("./decorators/bound");
 var RxStoreImpl = exports.RxStoreImpl = function () {
     var _a;
     var _instanceExtraInitializers = [];

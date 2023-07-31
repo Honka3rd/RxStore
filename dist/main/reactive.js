@@ -64,7 +64,8 @@ var ReactiveImpl = /** @class */ (function () {
     ReactiveImpl.prototype.resetMultiple = function (keys) {
         var _this = this;
         var data = this.dataSource.value;
-        keys.forEach(function (key) {
+        var converted = keys;
+        converted.forEach(function (key) {
             data[key] = _this.initiator[key]();
         });
         this.dataSource.next(data);
@@ -85,15 +86,16 @@ var ReactiveImpl = /** @class */ (function () {
     };
     ReactiveImpl.prototype.getDefaults = function (keys) {
         var _this = this;
-        return keys.reduce(function (acc, next) {
+        var converted = keys;
+        return converted.reduce(function (acc, next) {
             acc[next] = _this.getDefault(next);
             return acc;
         }, {});
     };
     ReactiveImpl.prototype.getMultiple = function (keys) {
         var _this = this;
-        var data = this.dataSource.value;
-        return keys.reduce(function (acc, next) {
+        var converted = keys;
+        return converted.reduce(function (acc, next) {
             acc[next] = _this.get(next);
             return acc;
         }, {});

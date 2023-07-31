@@ -6,7 +6,7 @@ export declare class ComputedImpl<R, S extends BS> implements Computed<R, S> {
     private computed;
     constructor(computation: Computation<R, S>, subscribable: Connectivity<S>, comparator?: Comparator<{ [K in keyof S]: ReturnType<S[K]>; }> | undefined);
     get(): R;
-    observe(observer: (r: R) => void): () => void;
+    observe(observer: (r: R) => void): import("rx-store-types").Unobserve;
 }
 export declare class ComputedAsyncImpl<R, S extends BS> implements ComputedAsync<R, S> {
     private subscribable;

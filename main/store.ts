@@ -1,25 +1,26 @@
 import {
-  AsyncReducer,
+  AsyncComputeConfig,
   AsyncDispatch,
+  AsyncDispatchConfig,
+  AsyncReducer,
   BS,
   Comparator,
   ComparatorMap,
   Computation,
   ComputationAsync,
   Connectivity,
+  ConstraintKeys,
   Dispatch,
+  Observe,
   Reducer,
   RxStore,
   Subscribable,
-  AsyncComputeConfig,
-  AsyncDispatchConfig,
-  Observe
 } from "rx-store-types";
 import { ComputedAsyncImpl, ComputedImpl } from "./computed";
+import { bound } from "./decorators/bound";
 import { AsyncDispatcherImpl, DispatcherImpl } from "./dispatcher";
 import { objectShallowCompareF } from "./util/objectShallowCompareFactory";
 import { shallowCompare } from "./util/shallowCompare";
-import { bound } from "./decorators/bound";
 
 export class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
   comparator: Comparator<any> = shallowCompare;
@@ -30,7 +31,7 @@ export class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
   constructor(
     protected connector: Connectivity<S>,
     comparator?: Comparator<ReturnType<S[keyof S]>>,
-    private comparatorMap?: ComparatorMap<S>
+    protected comparatorMap?: ComparatorMap<S>
   ) {
     if (comparator) {
       this.comparator = comparator;
@@ -56,7 +57,7 @@ export class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
 
   @bound
   observeMultiple<KS extends keyof S>(
-    keys: KS[],
+    keys: ConstraintKeys<KS>,
     observer: (result: { [K in KS]: ReturnType<S[K]> }) => void,
     comparator?: (
       prev: { [K in KS]: ReturnType<S[K]> },
@@ -117,7 +118,9 @@ export class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
       if (
         !this.objectCompare(
           nextVal,
-          this.connector.getMultiple(Object.keys(nextVal)) as Partial<{
+          this.connector.getMultiple(
+            Object.keys(nextVal) as ConstraintKeys<KS>
+          ) as Partial<{
             [K in keyof S]: ReturnType<S[K]>;
           }>
         )
@@ -130,7 +133,9 @@ export class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
     if (
       !this.objectCompare(
         updated,
-        this.connector.getMultiple(Object.keys(updated)) as {
+        this.connector.getMultiple(
+          Object.keys(updated) as ConstraintKeys<KS>
+        ) as {
           [K in KS]: ReturnType<S[K]>;
         }
       )
@@ -147,7 +152,7 @@ export class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
   }
 
   @bound
-  resetMultiple<KS extends (keyof S)[]>(keys: KS) {
+  resetMultiple <KS extends keyof S>(keys: ConstraintKeys<KS>) {
     this.connector.resetMultiple(keys);
     return this;
   }
@@ -177,10 +182,7 @@ export class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
     reducer: AsyncReducer<T, S, K>;
     key: K;
     config?: AsyncDispatchConfig<S, K>;
-  }): [
-    AsyncDispatch<T, S, K>,
-    Observe<ReturnType<S[K]>>
-  ] {
+  }): [AsyncDispatch<T, S, K>, Observe<ReturnType<S[K]>>] {
     const { dispatch, observe } = new AsyncDispatcherImpl<S, K, T>(
       params.reducer,
       this,
