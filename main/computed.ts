@@ -1,12 +1,4 @@
-import {
-  catchError,
-  exhaustMap,
-  from,
-  map,
-  of,
-  switchMap,
-  tap,
-} from "rxjs";
+import { BehaviorSubject, catchError, exhaustMap, from, map, of, switchMap, tap } from "rxjs";
 import {
   Computed,
   Computation,
@@ -22,7 +14,7 @@ import { bound } from "./decorators/bound";
 
 export class ComputedImpl<R, S extends BS> implements Computed<R, S> {
   readonly computation: Computation<R, S>;
-  private computed: R;
+  private $source: BehaviorSubject<R>;
 
   constructor(
     computation: Computation<R, S>,
@@ -30,21 +22,28 @@ export class ComputedImpl<R, S extends BS> implements Computed<R, S> {
     private comparator?: Comparator<{ [K in keyof S]: ReturnType<S[K]> }>
   ) {
     this.computation = computation;
-    this.computed = this.computation(subscribable.getDefaultAll());
+    this.$source = new BehaviorSubject<R>(this.computation(subscribable.getDefaultAll()))
+  }
+
+  @bound
+  private setComputed(states: { [K in keyof S]: ReturnType<S[K]> }) {
+    const value = this.computation(states);
+    this.$source.next(value);
   }
 
   @bound
   get() {
-    return this.computed;
+    return this.$source.value;
   }
 
   @bound
   observe(observer: (r: R) => void) {
-    return this.subscribable.observeAll((states) => {
-      const value = this.computation(states);
-      this.computed = value;
-      observer(value);
-    }, this.comparator);
+    const subscription = this.$source.subscribe(observer);
+    const unObserveAll = this.subscribable.observeAll(this.setComputed, this.comparator);
+    return () => {
+      subscription.unsubscribe();
+      unObserveAll();
+    }
   }
 }
 
@@ -63,6 +62,11 @@ export class ComputedAsyncImpl<R, S extends BS> implements ComputedAsync<R, S> {
     private onComplete?: () => void
   ) {
     this.computation = computation;
+  }
+
+  private getObservable(states: { [K in keyof S]: ReturnType<S[K]> }) {
+    const asyncReturn = this.computation(states);
+    return asyncReturn instanceof Promise ? from(asyncReturn) : asyncReturn;
   }
 
   @bound
@@ -85,10 +89,7 @@ export class ComputedAsyncImpl<R, S extends BS> implements ComputedAsync<R, S> {
           this.onStart?.(val);
         }),
         connect((states) => {
-          const asyncReturn = this.computation(states);
-          const async$ =
-            asyncReturn instanceof Promise ? from(asyncReturn) : asyncReturn;
-          return async$.pipe(
+          return this.getObservable(states).pipe(
             map((result) => {
               return {
                 success: true,

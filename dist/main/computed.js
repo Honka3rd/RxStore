@@ -42,6 +42,7 @@ var bound_1 = require("./decorators/bound");
 var ComputedImpl = exports.ComputedImpl = function () {
     var _a;
     var _instanceExtraInitializers = [];
+    var _setComputed_decorators;
     var _get_decorators;
     var _observe_decorators;
     return _a = /** @class */ (function () {
@@ -49,24 +50,30 @@ var ComputedImpl = exports.ComputedImpl = function () {
                 this.subscribable = (__runInitializers(this, _instanceExtraInitializers), subscribable);
                 this.comparator = comparator;
                 this.computation = computation;
-                this.computed = this.computation(subscribable.getDefaultAll());
+                this.$source = new rxjs_1.BehaviorSubject(this.computation(subscribable.getDefaultAll()));
             }
+            ComputedImpl.prototype.setComputed = function (states) {
+                var value = this.computation(states);
+                this.$source.next(value);
+            };
             ComputedImpl.prototype.get = function () {
-                return this.computed;
+                return this.$source.value;
             };
             ComputedImpl.prototype.observe = function (observer) {
-                var _this = this;
-                return this.subscribable.observeAll(function (states) {
-                    var value = _this.computation(states);
-                    _this.computed = value;
-                    observer(value);
-                }, this.comparator);
+                var subscription = this.$source.subscribe(observer);
+                var unObserveAll = this.subscribable.observeAll(this.setComputed, this.comparator);
+                return function () {
+                    subscription.unsubscribe();
+                    unObserveAll();
+                };
             };
             return ComputedImpl;
         }()),
         (function () {
+            _setComputed_decorators = [bound_1.bound];
             _get_decorators = [bound_1.bound];
             _observe_decorators = [bound_1.bound];
+            __esDecorate(_a, null, _setComputed_decorators, { kind: "method", name: "setComputed", static: false, private: false, access: { has: function (obj) { return "setComputed" in obj; }, get: function (obj) { return obj.setComputed; } } }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _get_decorators, { kind: "method", name: "get", static: false, private: false, access: { has: function (obj) { return "get" in obj; }, get: function (obj) { return obj.get; } } }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _observe_decorators, { kind: "method", name: "observe", static: false, private: false, access: { has: function (obj) { return "observe" in obj; }, get: function (obj) { return obj.observe; } } }, null, _instanceExtraInitializers);
         })(),
@@ -88,6 +95,10 @@ var ComputedAsyncImpl = exports.ComputedAsyncImpl = function () {
                 this.state = rx_store_types_1.AsyncStates.PENDING;
                 this.computation = computation;
             }
+            ComputedAsyncImpl.prototype.getObservable = function (states) {
+                var asyncReturn = this.computation(states);
+                return asyncReturn instanceof Promise ? (0, rxjs_1.from)(asyncReturn) : asyncReturn;
+            };
             ComputedAsyncImpl.prototype.get = function () {
                 return {
                     state: this.state,
@@ -105,9 +116,7 @@ var ComputedAsyncImpl = exports.ComputedAsyncImpl = function () {
                     onPending === null || onPending === void 0 ? void 0 : onPending();
                     (_a = _this.onStart) === null || _a === void 0 ? void 0 : _a.call(_this, val);
                 }), connect(function (states) {
-                    var asyncReturn = _this.computation(states);
-                    var async$ = asyncReturn instanceof Promise ? (0, rxjs_1.from)(asyncReturn) : asyncReturn;
-                    return async$.pipe((0, rxjs_1.map)(function (result) {
+                    return _this.getObservable(states).pipe((0, rxjs_1.map)(function (result) {
                         return {
                             success: true,
                             result: result,
