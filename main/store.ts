@@ -119,7 +119,7 @@ export class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
         !this.objectCompare(
           nextVal,
           this.connector.getMultiple(
-            Object.keys(nextVal) as ConstraintKeys<KS>
+            Object.keys(nextVal) as unknown as ConstraintKeys<KS>
           ) as Partial<{
             [K in keyof S]: ReturnType<S[K]>;
           }>
@@ -134,7 +134,7 @@ export class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
       !this.objectCompare(
         updated,
         this.connector.getMultiple(
-          Object.keys(updated) as ConstraintKeys<KS>
+          Object.keys(updated) as unknown as ConstraintKeys<KS>
         ) as {
           [K in KS]: ReturnType<S[K]>;
         }
