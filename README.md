@@ -18,26 +18,7 @@ import { NRS } from "rx-store-core";
 **Overview**
 
 ```javascript
-const {
-  setState, // the only way to trigger data change
-  observe, // observe single data
-  observeAll, // observe all stored data
-  observeMultiple, // observe multiple data changes
-  withComputation, // create a observable computation form stored data
-  createDispatch, // create a dispatch function with a Reducer, to handle complex Reactive data management
-  getState, // get a non-reactive data, it is mutable, please try to avoid to use this
-  getClonedState, // get a cloned non-reactive data, by default, it is shallow cloned, you can define a custom clone function when create a NRS
-  getDataSource, // get a RxJS Observable object, you can add any mid wares into its pipe function
-  getImmutableState, // try to parse a normal JS object into a Immutable object
-  getStateAll, // get a mutable object containing all stored data, avoid to use it
-  getStates, // get multiple stored non-reactive data, avoid to use it
-  reset, // reset a stored data to its default value
-  resetMultiple, // reset multiple stored data to its default value
-  resetAll, // reset all stored data to its default value
-  getDefault, // get default value of a non-reactive data
-  getDefaultAll, // get all default values of all non-reactive data
-  getDefaults, // get multiple default values of multiple non-reactive data
-} = NRS({
+const initiator = {
   height: () => 0, // this is a data default value factory
   id: () => "",
   complex: () => ({
@@ -46,7 +27,139 @@ const {
   }),
   keys: (): string[] => [], // you can define function return type to achieve type safety when we observe it
   groups: (): Array<{ num: 0, score: 0, alias: "" }> => [],
-});
+}
+
+type Initiator = keyof initiator;
+
+const {
+  /* @params {[key in keyof Initiator]: Initiator[key]} */
+  /* @Return NRS instance */
+  /* @Description  the only way to trigger data change */
+  setState,
+
+  /* @params 
+      key: K keyof Initiator,
+      observer: (result: ReturnType<S[K]>) => void,
+      comparator?: (prev: ReturnType<S[K]>, next: ReturnType<S[K]>) => boolean */
+  /* @Return Destructor function */
+  /* @Description  observe single data */
+  observe,
+
+  /* @params 
+    key: (K keyof Initiator)[]
+    observer: (result: { [K in keyof Initiator]: ReturnType<S[K]> }) => void,
+    comparator?: (
+      prev: { [K in keyof Initiator]: ReturnType<Initiator[K]> },
+      next: { [K in keyof Initiator]: ReturnType<Initiator[K]> }
+    ) => boolean */
+  /* @Return Destructor function */
+  /* @Description  observe all stored data */
+  observeAll, 
+
+  /* @params 
+    observer: (result: { [K in keyof Initiator]: ReturnType<S[K]> }) => void,
+    comparator?: (
+      prev: { [K in keyof Initiator]: ReturnType<Initiator[K]> },
+      next: { [K in keyof Initiator]: ReturnType<Initiator[K]> }
+    ) => boolean */
+  /* @Return Destructor function */
+  /* @Description  observe multiple data changes */
+  observeMultiple, 
+
+  /* @params 
+    {
+      computation: Computation<R, Initiator>;
+      comparator?: Comparator<{
+        [K in keyof Initiator]: ReturnType<S[K]>;
+      }>;
+    } 
+    */
+  /* @Return Computed instance */
+  /* @Description  create a observable computation form stored data */
+  withComputation, 
+  createDispatch, // create a dispatch function with a Reducer, to handle complex Reactive data management
+
+  /* @params 
+    key: (K keyof Initiator) */
+  /* @Return Initiator[K] */
+  /* @Description  get a non-reactive data, it is mutable, please try to avoid to change it directly */
+  getState,
+
+  /* @params 
+    key: (K keyof Initiator) */
+  /* @Return Initiator[K] */
+  /* @Description  get a cloned non-reactive data, by default, it is shallow cloned, you can define a custom clone function when create a NRS instance */
+  getClonedState,
+
+  /* @Return Observable<{ [K in keyof Initiator]: ReturnType<Initiator[K]>; }> */
+  /* @Description  get a RxJS Observable object containing all stored data, you can add any mid wares into its pipe function */
+  getDataSource,
+
+  /* @params 
+    key: (K keyof Initiator) */
+  /* @Return Observable<ReturnType<Initiator[K]>> */ */
+  /* @Description  get a RxJS Observable object containing one single stored data */
+  getSingleSource, 
+
+  /* @params 
+    key: (K keyof Initiator) */
+  /* 
+    @Return 
+    {
+        success: true;
+        immutable: Collection<keyof ReturnType<S[K]>, ReturnType<S[K]>[keyof ReturnType<S[K]>]>;
+    } | {
+        success: false;
+        immutable: ReturnType<S[K]>;
+    }
+  */  
+  /* @Description  try to parse a normal JS object into a Immutable object */
+  getImmutableState,
+
+  /* @Return { [K in keyof S]: ReturnType<S[K]>; } */
+  /* @Description  get a mutable object containing all stored data, avoid to change it directly */
+  getStateAll,
+
+  /* @params 
+    keys: (K keyof Partial<Initiator>)[]
+  /* @Return { K in (K keyof Partial<Initiator>)[][number]: Initiator[K]} */
+  /* @Description  get multiple stored non-reactive data, please try to avoid to change it directly */
+  getStates, 
+
+  /* @params 
+    key: (K keyof Initiator)
+  /* @Return NRS instance */
+  /* @Description  reset a stored data to its default value */
+  reset,
+
+  /* @params 
+    keys: (K keyof Partial<Initiator>)[]
+  /* @Return { K in (K keyof Partial<Initiator>)[][number]: Initiator[K]} */
+  /* @Description  reset multiple stored data to its default value */
+  resetMultiple,
+
+  /* @params 
+    keys: (K keyof Initiator)[]
+  /* @Return { K in (K keyof Initiator)[][number]: Initiator[K]} */
+  /* @Description  reset all stored data to its default value */
+  resetAll,
+
+  /* @params 
+    key: (K keyof Initiator)
+  /* @Return Initiator[K] */
+  /* @Description  get default value of a non-reactive data */
+  getDefault,
+
+  /* @Return { [K in keyof S]: ReturnType<S[K]>; } */
+  /* @Description  get all default values of all non-reactive data, avoid to change it directly */
+  getDefaultAll,
+
+  /* @params 
+    keys: (K keyof Partial<Initiator>)[]
+  /* @Return { K in (K keyof Partial<Initiator>)[][number]: Initiator[K]} */
+  /* @Description  get multiple default values of multiple non-reactive data */
+  getDefaults,
+} = NRS(initiator);
 ```
 
 **_Define stored data_**

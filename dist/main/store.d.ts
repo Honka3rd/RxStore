@@ -1,11 +1,13 @@
 import { AsyncComputeConfig, AsyncDispatch, AsyncDispatchConfig, AsyncReducer, BS, Comparator, Computation, ComputationAsync, Connectivity, ConstraintKeys, Dispatch, Observe, Reducer, RxStore, Subscribable } from "rx-store-types";
 import { ComputedAsyncImpl, ComputedImpl } from "./computed";
+import { Observable } from "rxjs";
 export declare class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
     protected connector: Connectivity<S>;
     protected comparatorMap?: Partial<{ [K in keyof S]: Comparator<ReturnType<S[K]>>; }> | undefined;
     comparator: Comparator<any>;
     private objectCompare;
     constructor(connector: Connectivity<S>, comparator?: Comparator<ReturnType<S[keyof S]>>, comparatorMap?: Partial<{ [K in keyof S]: Comparator<ReturnType<S[K]>>; }> | undefined);
+    getSingleSource<K extends keyof S>(key: K): Observable<ReturnType<S[K]>>;
     observe<K extends keyof S>(key: K, observer: (result: ReturnType<S[K]>) => void, comparator?: (prev: ReturnType<S[K]>, next: ReturnType<S[K]>) => boolean): import("rx-store-types").Unobserve;
     observeMultiple<KS extends keyof S>(keys: ConstraintKeys<KS>, observer: (result: {
         [K in KS]: ReturnType<S[K]>;
@@ -34,7 +36,7 @@ export declare class RxStoreImpl<S extends BS> implements Subscribable<S>, RxSto
     reset<K extends keyof S>(key: K): this;
     resetMultiple<KS extends keyof S>(keys: ConstraintKeys<KS>): this;
     resetAll(): this;
-    getDataSource(): import("rxjs").Observable<{ [K in keyof S]: ReturnType<S[K]>; }>;
+    getDataSource(): Observable<{ [K in keyof S]: ReturnType<S[K]>; }>;
     createDispatch<K extends keyof S, T extends string>(params: {
         reducer: Reducer<T, S, K>;
         key: K;

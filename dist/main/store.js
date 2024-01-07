@@ -41,9 +41,11 @@ var bound_1 = require("./decorators/bound");
 var dispatcher_1 = require("./dispatcher");
 var objectShallowCompareFactory_1 = require("./util/objectShallowCompareFactory");
 var shallowCompare_1 = require("./util/shallowCompare");
+var rxjs_1 = require("rxjs");
 var RxStoreImpl = exports.RxStoreImpl = function () {
     var _a;
     var _instanceExtraInitializers = [];
+    var _getSingleSource_decorators;
     var _observe_decorators;
     var _observeMultiple_decorators;
     var _observeAll_decorators;
@@ -69,6 +71,9 @@ var RxStoreImpl = exports.RxStoreImpl = function () {
                 }
                 this.objectCompare = (0, objectShallowCompareFactory_1.objectShallowCompareF)(this.comparator, this.comparatorMap);
             }
+            RxStoreImpl.prototype.getSingleSource = function (key) {
+                return this.getDataSource().pipe((0, rxjs_1.distinctUntilKeyChanged)(key), (0, rxjs_1.map)(function (states) { return states[key]; }));
+            };
             RxStoreImpl.prototype.observe = function (key, observer, comparator) {
                 var _a;
                 var presetComparator = ((_a = this.comparatorMap) === null || _a === void 0 ? void 0 : _a[key])
@@ -148,6 +153,7 @@ var RxStoreImpl = exports.RxStoreImpl = function () {
             return RxStoreImpl;
         }()),
         (function () {
+            _getSingleSource_decorators = [bound_1.bound];
             _observe_decorators = [bound_1.bound];
             _observeMultiple_decorators = [bound_1.bound];
             _observeAll_decorators = [bound_1.bound];
@@ -163,6 +169,7 @@ var RxStoreImpl = exports.RxStoreImpl = function () {
             _createAsyncDispatch_decorators = [bound_1.bound];
             _withComputation_decorators = [bound_1.bound];
             _withAsyncComputation_decorators = [bound_1.bound];
+            __esDecorate(_a, null, _getSingleSource_decorators, { kind: "method", name: "getSingleSource", static: false, private: false, access: { has: function (obj) { return "getSingleSource" in obj; }, get: function (obj) { return obj.getSingleSource; } } }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _observe_decorators, { kind: "method", name: "observe", static: false, private: false, access: { has: function (obj) { return "observe" in obj; }, get: function (obj) { return obj.observe; } } }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _observeMultiple_decorators, { kind: "method", name: "observeMultiple", static: false, private: false, access: { has: function (obj) { return "observeMultiple" in obj; }, get: function (obj) { return obj.observeMultiple; } } }, null, _instanceExtraInitializers);
             __esDecorate(_a, null, _observeAll_decorators, { kind: "method", name: "observeAll", static: false, private: false, access: { has: function (obj) { return "observeAll" in obj; }, get: function (obj) { return obj.observeAll; } } }, null, _instanceExtraInitializers);
