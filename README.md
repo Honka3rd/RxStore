@@ -97,7 +97,7 @@ const {
 
   /* @params 
     key: (K keyof Initiator) */
-  /* @Return Observable<ReturnType<Initiator[K]>> */ */
+  /* @Return Observable<ReturnType<Initiator[K]>> */
   /* @Description  get a RxJS Observable object containing one single stored data */
   getSingleSource, 
 

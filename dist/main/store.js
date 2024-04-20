@@ -72,7 +72,7 @@ var RxStoreImpl = exports.RxStoreImpl = function () {
                 this.objectCompare = (0, objectShallowCompareFactory_1.objectShallowCompareF)(this.comparator, this.comparatorMap);
             }
             RxStoreImpl.prototype.getSingleSource = function (key) {
-                return this.getDataSource().pipe((0, rxjs_1.distinctUntilKeyChanged)(key), (0, rxjs_1.map)(function (states) { return states[key]; }));
+                return this.getDataSource().pipe((0, rxjs_1.map)(function (states) { return states[key]; }), (0, rxjs_1.distinctUntilChanged)());
             };
             RxStoreImpl.prototype.observe = function (key, observer, comparator) {
                 var _a;

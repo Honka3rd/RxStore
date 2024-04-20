@@ -21,7 +21,12 @@ import { bound } from "./decorators/bound";
 import { AsyncDispatcherImpl, DispatcherImpl } from "./dispatcher";
 import { objectShallowCompareF } from "./util/objectShallowCompareFactory";
 import { shallowCompare } from "./util/shallowCompare";
-import { Observable, distinctUntilKeyChanged, map } from "rxjs";
+import {
+  Observable,
+  distinctUntilChanged,
+  distinctUntilKeyChanged,
+  map,
+} from "rxjs";
 
 export class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
   comparator: Comparator<any> = shallowCompare;
@@ -46,8 +51,8 @@ export class RxStoreImpl<S extends BS> implements Subscribable<S>, RxStore<S> {
   @bound
   getSingleSource<K extends keyof S>(key: K): Observable<ReturnType<S[K]>> {
     return this.getDataSource().pipe(
-      distinctUntilKeyChanged(key),
-      map((states) => states[key])
+      map((states) => states[key]),
+      distinctUntilChanged()
     );
   }
 
